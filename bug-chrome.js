@@ -74,7 +74,7 @@
         <div id="stream-row">
           <div id="stream-title">&mdash;</div>
           <button id="stream-mute" aria-label="Unmute stream" aria-pressed="false">
-            <img id="stream-mute-img" src="assets/OFF.svg" alt="">
+            <img id="stream-mute-img" src="assets/off.svg" alt="">
           </button>
         </div>
         <div class="hp" aria-hidden="true">
@@ -237,7 +237,7 @@
   let streamOn   = false;
 
   function setStreamIcon() {
-    streamImg.src = streamOn ? 'assets/ON.svg' : 'assets/OFF.svg';
+    streamImg.src = streamOn ? 'assets/on.svg' : 'assets/off.svg';
     streamMute.setAttribute('aria-pressed', String(streamOn));
     streamMute.setAttribute('aria-label', streamOn ? 'Mute stream' : 'Unmute stream');
   }

@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>GALLERY — BEAUTIFUL UNITY GYMNASIUM</title>
-<link rel="icon" href="assets/OFF-fav.svg" type="image/svg+xml">
+<link rel="icon" href="assets/off-fav.svg" type="image/svg+xml">
 <link rel="stylesheet" href="bug.css">
 
 <style>
@@ -244,7 +244,7 @@ body.lb-open { overflow: hidden; }
   <div id="lb-vidwrap">
     <video id="lb-video" loop playsinline muted></video>
     <button class="vid-mute" id="lb-vidmute" aria-label="Unmute" aria-pressed="false">
-      <img src="assets/OFF.svg" alt="">
+      <img src="assets/off.svg" alt="">
     </button>
   </div>
   <div id="lb-meta">
@@ -280,7 +280,7 @@ body.lb-open { overflow: hidden; }
                    onerror="this.closest('figure').remove()"></video>
             <span class="tag">${m.kind}</span>
             <button class="vid-mute" aria-label="Unmute" aria-pressed="false">
-              <img src="assets/OFF.svg" alt="">
+              <img src="assets/off.svg" alt="">
             </button>
             ${m.cap ? `<figcaption>${m.cap}</figcaption>` : ''}
           </figure>` : `
@@ -336,10 +336,10 @@ body.lb-open { overflow: hidden; }
         // only one audible at a time
         vids.forEach(o => { if (o !== v) o.muted = true; });
         document.querySelectorAll('.vid-mute img')
-          .forEach(i => { i.src = 'assets/OFF.svg'; });
+          .forEach(i => { i.src = 'assets/off.svg'; });
         v.play().catch(() => {});
       }
-      btn.querySelector('img').src = v.muted ? 'assets/OFF.svg' : 'assets/ON.svg';
+      btn.querySelector('img').src = v.muted ? 'assets/off.svg' : 'assets/on.svg';
       btn.setAttribute('aria-pressed', String(!v.muted));
       btn.setAttribute('aria-label', v.muted ? 'Unmute' : 'Mute');
     });
@@ -414,7 +414,7 @@ body.lb-open { overflow: hidden; }
 
   function setVidMute() {
     const b = document.getElementById('lb-vidmute');
-    b.querySelector('img').src = lbVid.muted ? 'assets/OFF.svg' : 'assets/ON.svg';
+    b.querySelector('img').src = lbVid.muted ? 'assets/off.svg' : 'assets/on.svg';
     b.setAttribute('aria-pressed', String(!lbVid.muted));
     b.setAttribute('aria-label', lbVid.muted ? 'Unmute' : 'Mute');
   }
@@ -425,7 +425,7 @@ body.lb-open { overflow: hidden; }
     if (!lbVid.muted) {
       vids.forEach(o => { o.muted = true; });   // hush the grid
       document.querySelectorAll('figure .vid-mute img')
-        .forEach(im => { im.src = 'assets/OFF.svg'; });
+        .forEach(im => { im.src = 'assets/off.svg'; });
       lbVid.play().catch(() => {});
     }
     setVidMute();
