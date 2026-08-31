@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THE BEAUTIFUL UNITY GYMNASIUM</title>
+<link rel="icon" href="assets/OFF-fav.svg" type="image/svg+xml">
+<link rel="stylesheet" href="bug.css">
+
+<style>
+/* ═══════════════════════════════════════════════════════════
+   HOME — stage, flag, edge lockups, ticker.
+   The header lives in bug.css / bug-chrome.js.
+   ═══════════════════════════════════════════════════════════ */
+:root {
+  --ticker-y: 1600px;
+
+  --flag-offset: 0px;
+  --flag-w: 1380px;
+  --flag-h: 2453px;
+  --flag-y: -150px;
+
+  --icon-h: 152px;
+  --drive-y: 1790px;
+
+  --lockup-w: 420px;
+  --lockup-inset: 46px;
+}
+
+html, body { background: var(--white); }
+
+/* the home page owns its own background, not the shared paper */
+#scaler { position: relative; width: 100%; overflow: hidden; }
+
+#stage {
+  position: absolute;
+  top: 0; left: 0;
+  width: 1920px;
+  height: 2120px;
+  transform-origin: top left;
+  z-index: 1;
+  overflow: hidden;
+}
+#bg { position: absolute; inset: 0; background: var(--white); z-index: 0; }
+
+#noise {
+  position: absolute; inset: 0;
+  z-index: 1; pointer-events: none;
+  opacity: 0.055; mix-blend-mode: multiply;
+}
+
+/* the shared header sits above the stage on this page */
+#chrome { position: absolute; top: 0; left: 0; z-index: 2; }
+
+/* ── TICKER ─────────────────────────────────────────────── */
+#ticker {
+  position: absolute;
+  left: 0;
+  top: var(--ticker-y);
+  width: 100%;
+  background: var(--ink);
+  overflow: hidden;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  padding: 3px 0;
+}
+#ticker-track {
+  display: flex;
+  white-space: nowrap;
+  will-change: transform;
+  animation: marquee 14s linear infinite;
+}
+/* the two periods in 02.21.07 want opposite treatment */
+#ticker-track .dot1 { margin-left: 0.05em;  margin-right: 0.05em; }
+#ticker-track .dot2 { margin-left: -0.04em; margin-right: -0.04em; }
+#ticker-track span {
+  font-family: var(--type-cn);
+  font-weight: 700;
+  font-size: 72px;
+  line-height: 0.74;
+  letter-spacing: -0.09em;
+  color: var(--yellow);
+  padding-right: 0;
+  position: relative;
+  top: -2px;                 /* line-height 0.74 sits the caps low */
+}
+@keyframes marquee {
+  from { transform: translate3d(0,0,0); }
+  to   { transform: translate3d(-50%,0,0); }
+}
+
+/* diagonal sheen, sweeping against the scroll */
+#ticker::after {
+  content: '';
+  position: absolute;
+  inset: -20% -10%;
+  pointer-events: none;
+  background: linear-gradient(
+    108deg,
+    transparent 38%,
+    rgba(255,221,0,0.10) 45%,
+    rgba(255,221,0,0.55) 49%,
+    rgba(255,255,255,0.85) 50.5%,
+    rgba(255,221,0,0.55) 52%,
+    rgba(255,221,0,0.10) 56%,
+    transparent 63%
+  );
+  transform: translateX(-130%);
+  animation: sheen 8.5s linear infinite;
+}
+@keyframes sheen {
+  0%   { transform: translateX(-130%); }
+  22%  { transform: translateX(130%); }
+  100% { transform: translateX(130%); }
+}
+
+/* ── EDGE LOCKUPS ────────────────────────────────────────
+   Rotated vertical. The slot is sized to the ROTATED footprint
+   with the svg centred inside, so rotation happens about the
+   svg's own centre and lands square in the slot.
+   steps(1) so each frame SNAPS — eased, it reads as a float
+   rather than a spasm.
+   ─────────────────────────────────────────────────────────── */
+.lockup-slot {
+  position: absolute;
+  top: 50%;
+  width: calc(var(--lockup-w) * 125 / 444);
+  height: var(--lockup-w);
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+  z-index: 15;               /* under the flag (20) */
+  pointer-events: auto;
+  cursor: pointer;
+}
+.slot-l { left: var(--lockup-inset); }
+.slot-r { right: var(--lockup-inset); }
+
+.lockup {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.lockup-wrap { flex: 0 0 auto; overflow: visible; }
+
+.lockup-wrap.lockup-l { animation: spaz-a 0.9s steps(1) infinite; }
+.lockup-wrap.lockup-r { animation: spaz-b 1.1s steps(1) infinite; }
+
+/* These stay <img>. The lockup is TWO-TONE — blue with a white
+   knockout — and a CSS mask throws colour away and fills the whole
+   silhouette, so the shimmer used on the dock icons cannot apply
+   here without destroying the artwork.
+
+   Hover swaps to a second file rather than filtering, so the orange
+   is the real #FF4400 and the knockout survives. Both are stacked
+   and cross-faded — swapping src would flash while the second file
+   loaded. */
+.lockup-wrap { position: relative; display: block; width: var(--lockup-w); }
+.lockup-wrap .lockup { display: block; }
+.lockup-wrap .lockup.hot {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+.lockup { transition: opacity 0.13s ease; }
+.lockup-slot:hover .lockup.cool { opacity: 0; }
+.lockup-slot:hover .lockup.hot  { opacity: 1; }
+
+@keyframes spaz-a {
+  0%   { transform: translate(0px,0px)   rotate(-90deg)   skewX(0deg); }
+  8%   { transform: translate(-7px,-2px) rotate(-92.5deg) skewX(3deg); }
+  16%  { transform: translate(5px,3px)   rotate(-88.2deg) skewX(-2deg); }
+  24%  { transform: translate(-3px,-3px) rotate(-86.8deg) skewX(1deg); }
+  32%  { transform: translate(9px,1px)   rotate(-91deg)   skewX(-4deg); }
+  40%  { transform: translate(-6px,4px)  rotate(-87.8deg) skewX(2deg); }
+  48%  { transform: translate(2px,-4px)  rotate(-93deg)   skewX(-1deg); }
+  56%  { transform: translate(-9px,2px)  rotate(-89.2deg) skewX(4deg); }
+  64%  { transform: translate(6px,-1px)  rotate(-92deg)   skewX(-3deg); }
+  72%  { transform: translate(-4px,5px)  rotate(-86.5deg) skewX(1.5deg); }
+  80%  { transform: translate(8px,-3px)  rotate(-91.5deg) skewX(-2.5deg); }
+  88%  { transform: translate(-2px,3px)  rotate(-88deg)   skewX(3.5deg); }
+  96%  { transform: translate(4px,0px)   rotate(-90.5deg) skewX(-1deg); }
+  100% { transform: translate(0px,0px)   rotate(-90deg)   skewX(0deg); }
+}
+@keyframes spaz-b {
+  0%   { transform: translate(0px,0px)   rotate(90deg)   skewX(0deg); }
+  7%   { transform: translate(6px,3px)   rotate(92.8deg) skewX(-3deg); }
+  15%  { transform: translate(-8px,-2px) rotate(88.8deg) skewX(2deg); }
+  23%  { transform: translate(3px,4px)   rotate(86.6deg) skewX(-1.5deg); }
+  31%  { transform: translate(-5px,-4px) rotate(91.5deg) skewX(4deg); }
+  39%  { transform: translate(9px,2px)   rotate(87.4deg) skewX(-2deg); }
+  47%  { transform: translate(-3px,-1px) rotate(93deg)   skewX(1deg); }
+  55%  { transform: translate(7px,5px)   rotate(89.1deg) skewX(-4deg); }
+  63%  { transform: translate(-6px,-3px) rotate(92.4deg) skewX(2.5deg); }
+  71%  { transform: translate(4px,1px)   rotate(86.8deg) skewX(-1deg); }
+  79%  { transform: translate(-9px,4px)  rotate(91.1deg) skewX(3deg); }
+  87%  { transform: translate(2px,-2px)  rotate(87.8deg) skewX(-2.5deg); }
+  95%  { transform: translate(-4px,0px)  rotate(90.6deg) skewX(1.5deg); }
+  100% { transform: translate(0px,0px)   rotate(90deg)   skewX(0deg); }
+}
+
+/* ── WARNING ──────────────────────────────────────────────
+   Toggles the meme-flash background. The icon is drawn as a
+   MASK over an animated gradient rather than as an <img>, so
+   the shimmer runs inside the glyph itself — an img can't be
+   recoloured or gradient-filled from CSS. The .shim class itself
+   lives in bug.css — these are only the per-control bindings and
+   the hover response. */
+
+/* hover kills the pass and goes flat orange — the shimmer is a
+   resting state, the orange is the response */
+#dock a:hover .shim,
+#dock button:hover .shim {
+  background-image: none;
+  background-color: var(--orange);
+  animation: none;
+}
+
+#warn i { --icon: url('assets/warning.svg'); }
+#warn.on i { --icon: url('assets/no-warning.svg'); }
+#drive .ico { --icon: url('assets/bug-drive.svg'); }
+
+/* ── MEME FLASH ───────────────────────────────────────────
+   Fixed to the VIEWPORT and outside #scaler. position:fixed does
+   not escape a transformed ancestor, and the stage is scaled — so
+   inside it the strobe was confined to the stage box and shrunk
+   with it. Out here it fills the screen at any size.
+
+   Only loads once armed: it is a large file and most visits will
+   never ask for it.
+   ─────────────────────────────────────────────────────────── */
+#flash {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+  display: none;
+  pointer-events: none;
+}
+#flash.on { display: block; }
+
+/* the stage paints an opaque white ground — it has to step aside
+   or the strobe sits behind it */
+body.armed #bg { opacity: 0; }
+body.armed, body.armed html { background: transparent; }
+
+/* ── DRIVE ────────────────────────────────────────────────
+   Sits under the ticker. Dollies left and right on a long,
+   even cycle — a slow pass, not a wobble. Links to the
+   register.
+   ─────────────────────────────────────────────────────────── */
+/* Both controls ride one dock, so the sway is a single animation
+   rather than two that would drift out of phase. A <button> cannot
+   sit inside an <a>, hence the wrapper. */
+#dock {
+  position: absolute;
+  left: 50%;
+  top: var(--drive-y);
+  z-index: 12;
+  display: flex;
+  align-items: flex-start;
+  gap: 46px;
+  transform: translateX(-50%);
+  animation: dolly 9s ease-in-out infinite alternate;
+}
+
+/* Both icons set to the same HEIGHT, not the same width — their
+   aspect ratios differ (1.297 vs 1.133), so matching width would
+   leave them visibly unequal. Width follows from the ratio. */
+#drive, #warn {
+  position: relative;
+  display: block;
+  height: var(--icon-h);
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  color: var(--blue);
+  text-decoration: none;
+  cursor: pointer;
+  transform: scale(1);
+  transition: transform 0.2s cubic-bezier(0.3,1.5,0.5,1);
+}
+#drive { width: calc(var(--icon-h) * 276.92 / 213.55); }
+#warn  { width: calc(var(--icon-h) * 144.41 / 127.47); }
+#drive:hover, #warn:hover { transform: scale(1.06); }
+
+/* label sits under the icon and only on hover — absolute so it
+   never takes layout space and the icons stay level */
+.lbl {
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  transform: translateX(-50%);
+  margin-top: 7px;
+  font-family: var(--type-cn);
+  font-weight: 700;
+  font-size: 33px;
+  line-height: 1;
+  letter-spacing: -0.06em;
+  white-space: nowrap;
+  color: var(--orange);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.14s ease;
+}
+#drive:hover .lbl, #warn:hover .lbl,
+#drive:focus-visible .lbl, #warn:focus-visible .lbl { opacity: 1; }
+/* the artwork declares no fill of its own, so it takes currentColor —
+   without this it falls back to black */
+
+
+
+
+@keyframes dolly {
+  0%   { transform: translateX(-50%) translateX(-46px); }
+  100% { transform: translateX(-50%) translateX(46px); }
+}
+
+/* ── FLAG ───────────────────────────────────────────────── */
+.flag {
+  position: absolute;
+  left: 50%;
+  margin-left: calc(var(--flag-w) * -0.5 + var(--flag-offset));
+  top: var(--flag-y);
+  width: var(--flag-w);
+  height: var(--flag-h);
+  object-fit: contain;
+  z-index: 20;
+  pointer-events: none;      /* clicks handled by the alpha test */
+}
+.flag.hidden { visibility: hidden; }
+
+body.flag-hover { cursor: pointer; }
+
+@media (max-width: 900px) {
+  /* artwork rides up at the same breakpoint the burger appears.
+     --flag-y is NOT set here: it's measured at runtime (alignFlag)
+     so the true top edge of the cloth lands on --flag-top-target,
+     whatever transparent margin the render happens to carry. */
+  :root {
+    --flag-top-target: 0px;
+    --ticker-y: 1200px;
+    --drive-y: 1560px;
+    --icon-h: 122px;
+  }
+  #dock { gap: 30px; }
+
+  .lbl { font-size: 26px; }
+  .lockup-slot { top: 34%; }
+  #ticker-track span { font-size: 104px; }
+}
+
+@media (max-width: 1250px) {
+  #ticker-track span { font-size: 88px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #ticker-track { animation: none; }
+  #ticker::after { animation: none; opacity: 0; }
+  #dock { animation: none; }
+  .shim { animation: none; }
+  .lockup-wrap.lockup-l { animation: none; transform: rotate(-90deg); }
+  .lockup-wrap.lockup-r { animation: none; transform: rotate(90deg); }
+  .shim { animation: none; }
+}
+</style>
+</head>
+
+<body data-page="home">
+
+<video id="flash" loop muted playsinline preload="none"></video>
+
+<div id="page">
+  <div id="scaler">
+
+    <div id="stage">
+      <div id="bg"></div>
+
+      <svg id="noise" xmlns="http://www.w3.org/2000/svg">
+        <filter id="grain">
+          <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/>
+          <feColorMatrix type="saturate" values="0"/>
+        </filter>
+        <rect width="100%" height="100%" filter="url(#grain)"/>
+      </svg>
+
+      <div id="ticker">
+        <div id="ticker-track">
+          <span>CREATIVE EXERCISE &amp; DEVELOPMENT &bull; 02<i class="dot1">.</i>21<i class="dot2">.</i>07 &bull; BEAUTIFUL UNITY GYMNASIUM &bull;&nbsp;</span>
+          <span aria-hidden="true">CREATIVE EXERCISE &amp; DEVELOPMENT &bull; 02<i class="dot1">.</i>21<i class="dot2">.</i>07 &bull; BEAUTIFUL UNITY GYMNASIUM &bull;&nbsp;</span>
+          <span aria-hidden="true">CREATIVE EXERCISE &amp; DEVELOPMENT &bull; 02<i class="dot1">.</i>21<i class="dot2">.</i>07 &bull; BEAUTIFUL UNITY GYMNASIUM &bull;&nbsp;</span>
+          <span aria-hidden="true">CREATIVE EXERCISE &amp; DEVELOPMENT &bull; 02<i class="dot1">.</i>21<i class="dot2">.</i>07 &bull; BEAUTIFUL UNITY GYMNASIUM &bull;&nbsp;</span>
+        </div>
+      </div>
+
+      <a class="lockup-slot slot-l" href="index.html" aria-label="Home"><span class="lockup-wrap lockup-l"><img class="lockup cool" src="assets/logo-lockup.svg" alt=""><img class="lockup hot" src="assets/logo-lockup-orange.svg" alt="" aria-hidden="true"></span></a>
+      <a class="lockup-slot slot-r" href="https://www.youtube.com/@beautiful.unity.gymnasium" target="_blank" rel="noopener" aria-label="YouTube channel"><span class="lockup-wrap lockup-r"><img class="lockup cool" src="assets/logo-lockup.svg" alt=""><img class="lockup hot" src="assets/logo-lockup-orange.svg" alt="" aria-hidden="true"></span></a>
+
+      <div id="dock">
+        <a id="drive" href="register.html" aria-label="Register">
+          <i class="shim ico"></i>
+          <span class="lbl">REGISTER</span>
+        </a>
+        <button id="warn" aria-label="Strobe on" aria-pressed="false">
+          <i class="shim"></i>
+          <span class="lbl" id="warn-lbl">STROBE ON</span>
+        </button>
+      </div>
+
+      <video class="flag" id="flag-a" autoplay loop muted playsinline></video>
+      <video class="flag hidden" id="flag-b" autoplay loop muted playsinline></video>
+    </div>
+
+    <div id="chrome-mount"></div>
+
+  </div>
+</div>
+
+<audio id="ambient" loop preload="auto">
+  <source src="assets/audio/flag-sim.mp3" type="audio/mpeg">
+</audio>
+<audio id="stream" preload="none"></audio>
+
+<script src="bug-chrome.js"></script>
+<script>
+(() => {
+  'use strict';
+
+  /* ═══════════════════════════════════════════════════════
+     CODEC SELECTION
+
+     Verified 2026-08-06 on this project's own encodes:
+       Chrome 150 / macOS — VP9-alpha OK, HEVC-alpha OK
+       Safari             — VP9-alpha renders a SOLID BLACK BOX
+                            HEVC-alpha OK
+
+     Safari reports "probably" for VP9 in WebM, so <source>
+     fallback CANNOT be used — it would confidently pick the
+     broken one. Selection must stay explicit.
+     ═══════════════════════════════════════════════════════ */
+  const IS_WEBKIT = navigator.vendor === 'Apple Computer, Inc.';
+  const EXT = IS_WEBKIT ? '.mp4' : '.webm';
+
+
+  /* ── STAGE SCALING ─────────────────────────────────────
+     ART_CAP  ceiling — artwork stops growing above this
+     ART_MIN  floor   — artwork stops shrinking below this
+     ─────────────────────────────────────────────────────── */
+  const STAGE_W = 1920, STAGE_H = 2120;
+  const ART_CAP = 0.62;
+  const ART_MIN = 0.54;
+
+  /* The composition ends just under the ticker; everything below is
+     white margin. Fitting to THIS rather than the full stage height
+     means the artwork is sized by what's actually visible, and the
+     leftover white is simply cropped. */
+  const FIT_H = 1990;   /* ticker bottom + the drive beneath it */
+
+  const scaler   = document.getElementById('scaler');
+  const stage    = document.getElementById('stage');
+  const chromeEl = document.getElementById('chrome');
+
+  function fit() {
+    const narrow  = window.innerWidth <= 900;
+    const chromeH = narrow && chromeEl ? chromeEl.offsetHeight : 0;
+    const stageH  = narrow ? STAGE_H - 400 : STAGE_H;
+
+    // width-driven, with its floor and ceiling
+    let s = Math.max(ART_MIN, Math.min(window.innerWidth / STAGE_W, ART_CAP));
+
+    if (!narrow) {
+      /* Desktop must never scroll: cap the scale so the flag and ticker
+         fit the viewport height. This overrides ART_MIN — a floor that
+         forces a scrollbar is worse than artwork that's a little small. */
+      s = Math.min(s, (window.innerHeight - chromeH) / FIT_H);
+    }
+
+    const w = window.innerWidth / s;
+
+    stage.style.transform = `scale(${s})`;
+    stage.style.width = w + 'px';
+    stage.style.top = chromeH + 'px';
+
+    scaler.style.height = narrow
+      ? (stageH * s + chromeH) + 'px'
+      : window.innerHeight + 'px';   // crop the white below the ticker
+  }
+  fit();
+  window.addEventListener('resize', fit);
+
+  /* ── FLAGS ─────────────────────────────────────────────
+     Click to cycle. Only current + next are ever in the DOM,
+     so payload stays flat regardless of how many exist.
+     ─────────────────────────────────────────────────────── */
+  const FLAGS = [
+    'circle-pendant', 'benzy-red', 'chip', 'chromedome', 'disclaimer',
+    'finder', 'racer', 'sam-blue', 'unity', 'viber', 'x'
+  ];
+
+  let flagIndex = 0;
+  let elA = document.getElementById('flag-a');
+  let elB = document.getElementById('flag-b');
+  const src = name => `assets/flags/${name}${EXT}`;
+
+  elA.src = src(FLAGS[0]);
+  elB.src = src(FLAGS[1]);
+
+  const hitCanvas = document.createElement('canvas');
+  hitCanvas.width = 96;
+  hitCanvas.height = 170;
+  const hitCtx = hitCanvas.getContext('2d', { willReadFrequently: true });
+
+  function flagHit(e) {
+    const v = elA;
+    if (!v.videoWidth) return false;
+    const r = v.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width;
+    const y = (e.clientY - r.top)  / r.height;
+    if (x < 0 || x > 1 || y < 0 || y > 1) return false;
+    try {
+      hitCtx.clearRect(0, 0, hitCanvas.width, hitCanvas.height);
+      hitCtx.drawImage(v, 0, 0, hitCanvas.width, hitCanvas.height);
+      return hitCtx.getImageData(
+        Math.floor(x * hitCanvas.width),
+        Math.floor(y * hitCanvas.height), 1, 1
+      ).data[3] > 20;
+    } catch (err) {
+      return true;
+    }
+  }
+
+  function cycleFlag() {
+    flagIndex = (flagIndex + 1) % FLAGS.length;
+    elB.classList.remove('hidden');
+    elA.classList.add('hidden');
+    elB.currentTime = 0;
+    elB.play().catch(() => {});
+    const tmp = elA; elA = elB; elB = tmp;
+    elB.src = src(FLAGS[(flagIndex + 1) % FLAGS.length]);
+    alignFlag();
+  }
+
+  /* ── FLAG TOP ALIGNMENT (narrow viewports) ─────────────
+     Each render carries a different transparent margin above
+     the cloth, and #stage clips at its top edge — so a fixed
+     negative --flag-y either leaves a gap or crops the cloth.
+
+     This samples the current frame's alpha, finds the first
+     row with an opaque pixel, and offsets the flag so that row
+     lands on --flag-top-target. Desktop keeps the authored value.
+     ─────────────────────────────────────────────────────── */
+  const alignCanvas = document.createElement('canvas');
+  const alignCtx = alignCanvas.getContext('2d', { willReadFrequently: true });
+  const TOP_PAD = 10;
+
+  function alignFlag() {
+    const root = document.documentElement;
+    if (window.innerWidth > 900) { root.style.removeProperty('--flag-y'); return; }
+
+    const v = elA;
+    if (!v.videoWidth || v.readyState < 2) return;
+
+    const W = 48;
+    const H = Math.max(1, Math.round(W * v.videoHeight / v.videoWidth));
+    alignCanvas.width = W; alignCanvas.height = H;
+
+    let firstRow = 0;
+    try {
+      alignCtx.clearRect(0, 0, W, H);
+      alignCtx.drawImage(v, 0, 0, W, H);
+      const d = alignCtx.getImageData(0, 0, W, H).data;
+      outer:
+      for (let y = 0; y < H; y++) {
+        for (let x = 0; x < W; x++) {
+          if (d[(y * W + x) * 4 + 3] > 20) { firstRow = y; break outer; }
+        }
+      }
+    } catch (err) { return; }   // tainted canvas on file:// — keep authored value
+
+    const cs     = getComputedStyle(root);
+    const flagH  = parseFloat(cs.getPropertyValue('--flag-h'));
+    const target = parseFloat(cs.getPropertyValue('--flag-top-target')) || 0;
+    root.style.setProperty('--flag-y', (target - (firstRow / H) * flagH - TOP_PAD) + 'px');
+  }
+
+  elA.addEventListener('loadeddata', alignFlag);
+  elB.addEventListener('loadeddata', alignFlag);
+  window.addEventListener('resize', alignFlag);
+
+  const blocked = t =>
+    t.closest('#chrome') || t.closest('#menu') ||
+    t.closest('#menu-scrim') || t.closest('.lockup-slot') ||
+    t.closest('#dock');
+
+  /* ═══════════════════════════════════════════════════════
+     SOUND
+
+     WebAudio rather than <audio> elements, for one reason: an
+     MP3 carries encoder padding at both ends, which becomes an
+     audible gap every time a loop comes round. A decoded buffer
+     has no padding, so `loop = true` is sample-accurate.
+
+     The arps stay WAV for the same reason — re-encoding them
+     would put the padding back before decoding ever sees them.
+
+     Nothing sounds before the first click: browsers hold the
+     audio context suspended until a gesture, by design.
+     ═══════════════════════════════════════════════════════ */
+  const SFX = {
+    shot: 'assets/audio/shot-one.wav',
+    arps: ['assets/audio/arp-comb.wav', 'assets/audio/arp-rave.wav',
+           'assets/audio/arp-rise.wav', 'assets/audio/arp-waves.wav']
+  };
+
+  const AC = window.AudioContext || window.webkitAudioContext;
+  let ctx = null, master = null;
+  const buffers = {};
+  let loopNode = null;
+  let sfxOn = false;
+
+  function boot() {
+    if (ctx) return;
+    ctx = new AC();
+    master = ctx.createGain();
+    /* if the frame is already on when the context boots, come up
+       audible — otherwise the first unlock is silent */
+    master.gain.value = sfxOn ? 1 : 0;
+    master.connect(ctx.destination);
+    [SFX.shot, ...SFX.arps].forEach(load);
+  }
+
+  /* each entry is a PROMISE for a decoded buffer, so a play that
+     arrives before loading finishes waits rather than failing */
+  function load(src) {
+    if (buffers[src]) return buffers[src];
+    buffers[src] = fetch(src)
+      .then(r => r.arrayBuffer())
+      .then(b => ctx.decodeAudioData(b))
+      .catch(() => null);
+    return buffers[src];
+  }
+
+  /* pointerdown in the CAPTURE phase: several controls call
+     stopPropagation, and the warning button is one of them — on a
+     bubbling listener, clicking the strobe was the one action that
+     could never unlock the context it needed. */
+  document.addEventListener('pointerdown', () => {
+    boot();
+    if (ctx.state === 'suspended') ctx.resume();
+  }, true);
+
+  /* a loop started before its buffer arrived must still be
+     cancellable — the token says whether it is still wanted */
+  let loopToken = 0;
+
+  function play(src, vol, loop) {
+    if (!ctx || !sfxOn) return;
+    const token = loop ? ++loopToken : -1;
+
+    Promise.resolve(load(src)).then(buf => {
+      if (!buf) return;
+      if (!sfxOn) return;
+      if (loop && token !== loopToken) return;   // superseded or stopped
+
+      const n = ctx.createBufferSource();
+      n.buffer = buf;
+      n.loop = !!loop;
+      const g = ctx.createGain();
+      g.gain.value = vol == null ? 0.7 : vol;
+      n.connect(g).connect(master);
+      n.start(0);
+      if (loop) loopNode = n;
+    });
+  }
+
+  function stopLoop() {
+    loopToken++;                                  // cancels a pending start
+    if (loopNode) { try { loopNode.stop(); } catch (e) {} loopNode = null; }
+  }
+
+  function hush() { stopLoop(); }
+
+  /* a hover sound on every element becomes noise fast — one shot at
+     a time, and never twice within a beat */
+  let lastShot = 0;
+  function shot() {
+    const now = Date.now();
+    if (now - lastShot < 260) return;
+    lastShot = now;
+    play(SFX.shot, 0.55);
+  }
+
+  document.querySelectorAll('.lockup-slot, #drive').forEach(el =>
+    el.addEventListener('mouseenter', shot));
+
+  window.addEventListener('bug:sfx', e => {
+    sfxOn = !!e.detail.on;
+    if (ctx) {
+      /* ramped rather than switched — a hard gain change on a running
+         loop clicks */
+      master.gain.cancelScheduledValues(ctx.currentTime);
+      master.gain.setTargetAtTime(sfxOn ? 1 : 0, ctx.currentTime, 0.02);
+    }
+    if (!sfxOn) hush();
+  });
+
+  let arpAt = 0;
+
+  /* ── warning / meme flash ──────────────────────────────
+     Play-and-stop. Armed, the flash runs behind everything on
+     the stage; disarmed, the canvas returns to blank white.
+     preload="none" until first use — the file is large and most
+     visits never ask for it. */
+  const warn  = document.getElementById('warn');
+  const flash = document.getElementById('flash');
+  let armed = false;
+
+  warn.addEventListener('click', e => {
+    e.stopPropagation();
+    armed = !armed;
+    warn.classList.toggle('on', armed);
+    flash.classList.toggle('on', armed);
+    document.body.classList.toggle('armed', armed);
+    warn.setAttribute('aria-pressed', String(armed));
+    warn.setAttribute('aria-label', armed ? 'Strobe off' : 'Strobe on');
+    document.getElementById('warn-lbl').textContent = armed ? 'STROBE OFF' : 'STROBE ON';
+
+    if (armed) {
+      /* the arp runs for as long as the strobe does, cycling so
+         arming twice is not the same sound */
+      stopLoop();
+      play(SFX.arps[arpAt % SFX.arps.length], 0.8, true);
+      arpAt++;
+    } else {
+      stopLoop();      /* stopping the strobe stops its sound */
+    }
+
+    if (armed) {
+      if (!flash.src) flash.src = 'assets/meme-strobe-2.mp4';
+      flash.preload = 'auto';
+      flash.play().catch(() => {});
+    } else {
+      flash.pause();
+    }
+  });
+
+
+  document.addEventListener('click', e => {
+    if (blocked(e.target)) return;
+    if (flagHit(e)) cycleFlag();
+  });
+
+  /* hand cursor over opaque flag pixels. The flag is
+     pointer-events:none so :hover can't do this — it needs the
+     same alpha test, throttled to one sample per frame. */
+  let pending = false, lastEvt = null, hovering = false;
+  document.addEventListener('mousemove', e => {
+    lastEvt = e;
+    if (pending) return;
+    pending = true;
+    requestAnimationFrame(() => {
+      pending = false;
+      const ev = lastEvt;
+      const on = !blocked(ev.target) && flagHit(ev);
+      if (on !== hovering) {
+        hovering = on;
+        document.body.classList.toggle('flag-hover', on);
+        if (on) shot();
+      }
+    });
+  });
+
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PROGRAM — BEAUTIFUL UNITY GYMNASIUM</title>
+<link rel="icon" href="assets/OFF-fav.svg" type="image/svg+xml">
+<link rel="stylesheet" href="bug.css">
+
+<style>
+/* ── PROGRAM ──────────────────────────────────────────────
+   A register, not a poster wall. Upcoming at the top, the
+   archive beneath it in reverse date order.
+   ─────────────────────────────────────────────────────────── */
+#noise {
+  position: fixed; inset: 0;
+  z-index: 0; pointer-events: none;
+  opacity: 0.055; mix-blend-mode: multiply;
+}
+#page { position: relative; z-index: 1; }
+
+main {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 24px 46px 160px;
+  font-family: var(--type-cn);
+  color: var(--blue);
+
+  /* one leading value for every text run in an entry — title, sub,
+     venue, bill and legs — so the whole block sets on one rhythm
+     regardless of size */
+  --entry-lh: 1.06;
+}
+
+/* section rules */
+.section-head {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  margin: 0 0 22px;
+  padding-bottom: 9px;
+  border-bottom: 3px solid var(--blue);
+}
+.section-head h2 {
+  font-weight: 700;
+  font-size: 44px;
+  line-height: 1;
+  letter-spacing: -0.06em;
+}
+.section-head .count {
+  font-weight: 400;
+  font-size: 0.48em;
+  letter-spacing: -0.04em;
+  margin-left: 0.28em;
+}
+.archive-head { margin-top: 96px; }
+
+/* ── entries ───────────────────────────────────────────── */
+.entry {
+  display: grid;
+  grid-template-columns: 190px 1fr 260px;
+  gap: 18px;
+  align-items: start;
+  padding: 17px 0;
+  border-bottom: 1px solid rgba(4,0,255,0.28);
+}
+.entry:last-child { border-bottom: 0; }
+
+.entry .cat {
+  font-weight: 400;
+  font-size: 20px;
+  letter-spacing: -0.04em;
+  white-space: nowrap;
+}
+.entry .body { min-width: 0; }
+.entry h3 {
+  font-weight: 700;
+  font-size: 30px;
+  line-height: var(--entry-lh);
+  letter-spacing: -0.05em;
+}
+.to-gallery { color: inherit; text-decoration: none; }
+.gallery-link, .carrier a { margin-left: calc(var(--block-pad) * -1); }
+
+.gallery-link {
+  margin-left: auto;
+  font-weight: 400;
+  font-size: 19px;
+  line-height: var(--entry-lh);
+  letter-spacing: -0.04em;
+}
+.entry .sub,
+.entry .venue {
+  font-weight: 400;
+  font-size: 20px;
+  line-height: var(--entry-lh);
+  letter-spacing: -0.04em;
+}
+.entry .venue { opacity: 0.72; }
+
+/* lineup and production credits */
+.bill {
+  margin-top: 10px;
+  font-weight: 400;
+  font-size: 19px;
+  line-height: var(--entry-lh);
+  letter-spacing: -0.04em;
+}
+.bill .gap { display: inline-block; height: 0.55em; }
+.venue-after { margin-top: 12px; }
+.entry .date {
+  font-weight: 700;
+  font-size: 22px;
+  line-height: var(--entry-lh);
+  letter-spacing: -0.05em;
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* ── upcoming ──────────────────────────────────────────── */
+.upcoming .entry {
+  grid-template-columns: 190px 1fr 260px;
+  padding: 26px 0;
+  border-bottom: 0;
+}
+.upcoming h3 { font-size: 62px; letter-spacing: -0.06em; }
+.upcoming .sub { font-size: 26px; }
+.upcoming .venue { font-size: 24px; }
+.upcoming .bill { font-size: 22px; }
+.upcoming .date { font-size: 34px; }
+
+.none {
+  font-weight: 400;
+  font-size: 24px;
+  letter-spacing: -0.04em;
+  padding: 26px 0;
+}
+
+/* ── tour legs ─────────────────────────────────────────── */
+.legs {
+  margin-top: 13px;
+  display: grid;
+  gap: 0;
+}
+.leg {
+  display: grid;
+  grid-template-columns: 74px 132px 1fr;
+  gap: 12px;
+  font-weight: 400;
+  font-size: 18px;
+  line-height: var(--entry-lh);
+  letter-spacing: -0.04em;
+}
+.leg .leg-cat { opacity: 0.55; }
+.leg .leg-city { font-weight: 700; }
+.leg .leg-venue { opacity: 0.72; }
+
+/* ── carrier line ──────────────────────────────────────── */
+.carrier {
+  margin-top: 12px;
+  font-weight: 400;
+  font-size: 19px;
+  line-height: var(--entry-lh);
+  letter-spacing: -0.04em;
+}
+.carrier a {
+  position: relative;
+  z-index: 0;
+  color: var(--blue);
+  text-decoration: none;
+  padding: 0 calc(var(--block-pad) + 0.05em * var(--track-comp)) 0 var(--block-pad);
+  transition: color 0.14s ease;
+}
+.carrier a::before {
+  content: '';
+  position: absolute;
+  left: 0; right: 0;
+  top: 50%;
+  height: var(--block-h);
+  transform: translateY(-50%) translateY(calc((var(--cap-fix) + var(--cap-nudge)) * -1));
+  background: var(--orange);
+  opacity: 0;
+  z-index: -1;
+  transition: opacity 0.14s ease;
+}
+.carrier a:hover { color: var(--white); }
+.carrier a:hover::before { opacity: 1; }
+.carrier-cat { opacity: 0.55; margin-left: 3px; }
+
+@media (max-width: 900px) {
+  main { padding: 14px 16px 110px; }
+  .section-head h2 { font-size: 30px; }
+  .section-head .count { font-size: 16px; }
+  .archive-head { margin-top: 60px; }
+
+  .entry, .upcoming .entry {
+    grid-template-columns: 1fr;
+    gap: 5px;
+    padding: 15px 0;
+  }
+  .entry .date { text-align: left; }
+  .entry .cat { font-size: 16px; }
+  .entry h3 { font-size: 23px; }
+  .entry .sub, .entry .venue { font-size: 16px; }
+  .entry .date { font-size: 18px; }
+
+  .upcoming h3 { font-size: 34px; }
+  .upcoming .sub { font-size: 19px; }
+  .upcoming .venue { font-size: 18px; }
+  .upcoming .date { font-size: 22px; }
+  .bill { font-size: 16px; }
+
+  .leg { grid-template-columns: 1fr; gap: 0; padding: 6px 0; font-size: 16px; }
+  .leg .leg-cat { display: none; }
+}
+</style>
+</head>
+
+<body data-page="program">
+
+<svg id="noise" xmlns="http://www.w3.org/2000/svg">
+  <filter id="grain">
+    <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/>
+    <feColorMatrix type="saturate" values="0"/>
+  </filter>
+  <rect width="100%" height="100%" filter="url(#grain)"/>
+</svg>
+
+<div id="page">
+  <div id="chrome-mount"></div>
+  <main>
+    <div class="section-head">
+      <h2>UPCOMING<span class="count" id="up-count"></span></h2>
+    </div>
+    <div class="upcoming" id="upcoming"></div>
+
+    <div class="section-head archive-head">
+      <h2>ARCHIVE<span class="count" id="ar-count"></span></h2>
+      <a class="lb gallery-link" href="gallery.html">GALLERY &rarr;</a>
+    </div>
+    <div id="archive"></div>
+  </main>
+</div>
+
+<audio id="stream" preload="none"></audio>
+
+<script src="programs.js"></script>
+<script src="bug-chrome.js"></script>
+<script>
+(() => {
+  'use strict';
+
+  const all = window.PROGRAMS || [];
+
+  /* Split on today's date rather than hand-maintaining two lists —
+     a program moves to the archive on its own the day after it runs. */
+  const today = new Date().toISOString().slice(0, 10);
+  const upcoming = all.filter(p => p.sort >= today).sort((a, b) => a.sort.localeCompare(b.sort));
+  const archive  = all.filter(p => p.sort <  today).sort((a, b) => b.sort.localeCompare(a.sort));
+
+  const bill = p => !(p.bill || []).length ? '' : `
+    <div class="bill">${p.bill
+      .map(l => l === '' ? '<span class="gap"></span>' : l).join('<br>')}</div>`;
+
+  const legs = p => !p.parts ? '' : `
+    <div class="legs">${p.parts.map(l => `
+      <div class="leg">
+        <span class="leg-cat">${l.cat}</span>
+        <span class="leg-city">${l.city}</span>
+        <span class="leg-venue">${l.venue} &nbsp;${l.with || ''}</span>
+      </div>`).join('')}
+    </div>`;
+
+  const carrier = p => !p.carrier ? '' : `
+    <div class="carrier">
+      <a class="lb" href="${p.carrier.href}" target="_blank" rel="noopener">${p.carrier.label}</a>
+      <span class="carrier-cat">[${p.carrier.cat}]</span>
+    </div>`;
+
+  const link = p => !p.link ? '' : `
+    <div class="carrier">
+      <a class="lb" href="${p.link.href}" target="_blank" rel="noopener">${p.link.label}</a>
+    </div>`;
+
+  const entry = p => `
+    <div class="entry">
+      <div class="cat">${p.cat}</div>
+      <div class="body">
+        <h3><a class="lb lb-flush to-gallery" href="gallery.html#${p.slug}">${p.title}</a></h3>
+        ${p.sub ? `<div class="sub">${p.sub}</div>` : ''}
+        ${p.venue && !p.venueAfter ? `<div class="venue">${p.venue}</div>` : ''}
+        ${bill(p)}
+        ${p.venue &&  p.venueAfter ? `<div class="venue venue-after">${p.venue}</div>` : ''}
+        ${legs(p)}
+        ${link(p)}
+        ${carrier(p)}
+      </div>
+      <div class="date">${p.date}</div>
+    </div>`;
+
+  document.getElementById('upcoming').innerHTML =
+    upcoming.length ? upcoming.map(entry).join('')
+                    : '<div class="none">NO PROGRAM PRESENTLY SCHEDULED.</div>';
+  document.getElementById('archive').innerHTML = archive.map(entry).join('');
+
+  document.getElementById('up-count').textContent = `[${upcoming.length}]`;
+  document.getElementById('ar-count').textContent = `[${archive.length}]`;
+})();
+</script>
+
+</body>
+</html>

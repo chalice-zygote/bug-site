@@ -1,0 +1,435 @@
+/* ═══════════════════════════════════════════════════════════
+   B.U.G. — shared chrome
+   Injects the header and drawer into #chrome-mount and wires
+   everything. One copy, every page.
+
+   Each page declares its identity on <body>:
+     <body data-page="home">      speaker = ambient audio toggle
+     <body data-page="catalog">   speaker = home link
+   ═══════════════════════════════════════════════════════════ */
+(() => {
+  'use strict';
+
+  const PAGE    = document.body.dataset.page || '';
+  const IS_HOME = PAGE === 'home';
+
+  const NAV = [
+    { label: 'MEDIA',   href: 'media.html',   id: 'media'   },
+    { label: 'CATALOG', href: 'catalog.html', id: 'catalog' },
+    { label: 'PROGRAM', href: 'program.html', id: 'program' },
+    { label: 'INFO',    href: 'info.html',    id: 'info'    }
+  ];
+
+  const MAILCHIMP_ACTION = 'REPLACE_ME';   // list-manage.com/subscribe/post?u=…&id=…
+  const SMS_ENDPOINT     = '/api/sms-subscribe';
+
+  /* `label` is used verbatim in the bar when present, so a record can
+     read exactly as it should rather than being assembled from parts. */
+  const PLAYLIST = [
+    { label: 'Teton Eternal - Miracle! (BUG.WRKS.003&bull;2026) [37:49]',
+      title: 'Miracle!', artist: 'Teton Eternal', duration: '37:49',
+      src: 'assets/audio/teton-eternal-miracle.mp3' }
+  ];
+
+  /* ── build ─────────────────────────────────────────────── */
+  const active = id => id === PAGE ? ' class="is-active"' : '';
+  const navHTML = NAV.map(n => `<a href="${n.href}"${active(n.id)}>${n.label}</a>`).join('\n        ');
+
+  const mount = document.getElementById('chrome-mount');
+  if (!mount) return;
+
+  mount.outerHTML = `
+  <div id="chrome">
+
+    <button id="burger" aria-label="Open menu" aria-expanded="false" aria-controls="menu">
+      <span></span><span></span><span></span>
+    </button>
+
+    <div id="nav-wrap">
+      <nav>
+        ${navHTML}
+      </nav>
+    </div>
+
+    <div id="speaker-wrap">
+      <button id="speaker-toggle" aria-label="${IS_HOME ? 'Sound off' : 'Home'}"${IS_HOME ? ' aria-pressed="false"' : ''}>
+        <img id="speaker-img" src="assets/speakerflag.svg" alt="">
+      </button>
+    </div>
+
+    <div id="stack-wrap">
+      <div id="stack">
+        <div class="row">
+          <input type="text" id="subscribe-input" placeholder="email address or cell #"
+                 autocomplete="off" spellcheck="false">
+          <button id="subscribe-btn">subscribe</button>
+        </div>
+        <div class="row">
+          <div class="input-wrap">
+            <input type="text" id="search-input" autocomplete="off" spellcheck="false">
+            <span id="search-dots" aria-hidden="true"><i>.</i><i>.</i><i>.</i></span>
+          </div>
+          <button id="search-btn">search</button>
+        </div>
+        <div id="stream-row">
+          <div id="stream-title">&mdash;</div>
+          <button id="stream-mute" aria-label="Unmute stream" aria-pressed="false">
+            <img id="stream-mute-img" src="assets/OFF.svg" alt="">
+          </button>
+        </div>
+        <div class="hp" aria-hidden="true">
+          <label>Company<input type="text" id="hp-field" tabindex="-1" autocomplete="off"></label>
+        </div>
+        <div id="consent">
+          By submitting, the party consents to receive periodic transmissions from the
+          Beautiful Unity Gymnasium. Message frequency varies. Message and data rates
+          may apply. Reply STOP to terminate. <a href="sms-terms.html">Terms</a>.
+        </div>
+        <div id="form-status" role="status" aria-live="polite"></div>
+      </div>
+    </div>
+
+  </div>`;
+
+  document.body.insertAdjacentHTML('beforeend', `
+  <div id="menu-scrim"></div>
+  <nav id="menu" aria-hidden="true">
+    <button id="menu-close" aria-label="Close menu"></button>
+    ${navHTML}
+    <div class="menu-foot">
+      <span class="menu-mark">02.21<i class="dot2">.</i>07</span>
+      <img class="rated" src="assets/rated-b.png" alt="">
+    </div>
+  </nav>`);
+
+  /* ═══════════════════════════════════════════════════════
+     CAP CENTRING — measured, not estimated
+
+     All-caps type does not sit centred in its line box: the box
+     reserves descender space that capitals never use, so the
+     letters ride high. Every inverted block (nav active, drawer
+     active, title blocks, link hovers) has to shift by that
+     amount to centre on the LETTERS rather than the box.
+
+     The offset is a property of the font's metrics, so rather
+     than hardcode a guess it is measured here once the font has
+     actually loaded:
+
+       offset_em = ((descent - ascent) / 2 + capHeight / 2) / size
+
+     which is independent of line-height. Result is written to
+     --cap-fix and every block reads from it.
+     ═══════════════════════════════════════════════════════ */
+  function measureCapFix() {
+    try {
+      const SIZE = 200;
+      const c = document.createElement('canvas');
+      c.width = SIZE * 2; c.height = SIZE * 3;
+      const x = c.getContext('2d', { willReadFrequently: true });
+      const stack = getComputedStyle(document.documentElement)
+                      .getPropertyValue('--type-cn').trim();
+      x.font = `700 ${SIZE}px ${stack}`;
+      x.textBaseline = 'alphabetic';
+      x.fillStyle = '#000';
+      const baseline = SIZE * 2;
+      x.fillText('H', 10, baseline);
+
+      const m = x.measureText('H');
+      const asc  = m.fontBoundingBoxAscent;
+      const desc = m.fontBoundingBoxDescent;
+      if (!asc && asc !== 0) return;              // unsupported — keep the CSS default
+
+      // topmost opaque row gives the true cap height
+      const d = x.getImageData(0, 0, c.width, c.height).data;
+      let capTop = -1;
+      outer:
+      for (let y = 0; y < c.height; y++) {
+        for (let px = 0; px < c.width; px++) {
+          if (d[(y * c.width + px) * 4 + 3] > 10) { capTop = y; break outer; }
+        }
+      }
+      if (capTop < 0) return;
+
+      const capH = baseline - capTop;
+      const em   = ((desc - asc) / 2 + capH / 2) / SIZE;
+
+      // sanity clamp — a wild value means the measurement went wrong
+      if (em > 0.30 || em < -0.30) return;
+      document.documentElement.style.setProperty('--cap-fix', em.toFixed(4) + 'em');
+    } catch (e) { /* keep the CSS default */ }
+  }
+
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(measureCapFix);
+  } else {
+    window.addEventListener('load', measureCapFix);
+  }
+
+  /* ── burger ────────────────────────────────────────────── */
+  const burger = document.getElementById('burger');
+  const menu   = document.getElementById('menu');
+  const scrim  = document.getElementById('menu-scrim');
+
+  function setMenu(open) {
+    document.body.classList.toggle('menu-open', open);
+    menu.classList.toggle('open', open);
+    scrim.classList.toggle('open', open);
+    burger.setAttribute('aria-expanded', String(open));
+    menu.setAttribute('aria-hidden', String(!open));
+  }
+  burger.addEventListener('click', e => { e.stopPropagation(); setMenu(!menu.classList.contains('open')); });
+  scrim.addEventListener('click', () => setMenu(false));
+  document.getElementById('menu-close').addEventListener('click', () => setMenu(false));
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') setMenu(false); });
+
+  /* ── speaker: ambient toggle on home, home link elsewhere ─ */
+  const spkBtn = document.getElementById('speaker-toggle');
+  const spkImg = document.getElementById('speaker-img');
+  const ambient = document.getElementById('ambient');
+
+  if (IS_HOME && ambient) {
+    ambient.muted = true;
+    ambient.play().catch(() => {});
+    let on = false;
+    spkBtn.addEventListener('click', () => {
+      on = !on;
+      ambient.muted = !on;
+      if (on) ambient.play().catch(() => {});
+      spkImg.src = on ? 'assets/speakerflag-reverse.svg' : 'assets/speakerflag.svg';
+      spkBtn.setAttribute('aria-pressed', String(on));
+      spkBtn.setAttribute('aria-label', on ? 'Sound on' : 'Sound off');
+
+      /* master switch — the page's effects follow this, the stream
+         bar does not. Announced rather than reached into, so the
+         home page owns its own sound. */
+      window.dispatchEvent(new CustomEvent('bug:sfx', { detail: { on } }));
+    });
+  } else {
+    spkBtn.addEventListener('click', () => { window.location.href = 'index.html'; });
+  }
+
+  /* ═══════════════════════════════════════════════════════
+     STREAM BAR
+
+     Boots muted so autoplay is permitted, which means the audio
+     is already running silently and unmutes instantly on click
+     with no start-up stall.
+
+     Separate HTML documents means the <audio> element dies on
+     every navigation — it cannot be made to survive. What it CAN
+     do is resume: track index, playhead and unmuted state are
+     written to sessionStorage and restored on the next page. The
+     sound drops during load, then picks up where it was.
+
+     Restoring UNMUTED needs the browser to allow audible
+     autoplay. It often will once someone has engaged with the
+     site, but not always — if play() rejects we fall back to
+     muted and set the icon to match, rather than showing an
+     unmuted icon over silence.
+     ═══════════════════════════════════════════════════════ */
+  const stream      = document.getElementById('stream');
+  const streamTitle = document.getElementById('stream-title');
+  const streamMute  = document.getElementById('stream-mute');
+  const streamImg   = document.getElementById('stream-mute-img');
+  const STORE = 'bug.stream';
+
+  let trackIndex = 0;
+  let streamOn   = false;
+
+  function setStreamIcon() {
+    streamImg.src = streamOn ? 'assets/ON.svg' : 'assets/OFF.svg';
+    streamMute.setAttribute('aria-pressed', String(streamOn));
+    streamMute.setAttribute('aria-label', streamOn ? 'Mute stream' : 'Unmute stream');
+  }
+
+  function showTitle(i) {
+    if (!PLAYLIST.length) { streamTitle.innerHTML = '<span>&mdash;</span>'; return; }
+    const t = PLAYLIST[i];
+    const text = t.label || `${t.artist} - ${t.title} [${t.duration}]`;
+
+    /* Doubled so the loop is seamless: the animation travels exactly
+       half the width, at which point the copy sits where the original
+       began. A single run would snap back visibly.
+
+       The gap has to sit INSIDE each copy, not after the pair — a
+       trailing pad would leave the two runs butted together at the
+       loop point and only open a space at the very end. */
+    const gap = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+    streamTitle.innerHTML = `<span>${text}${gap}${text}${gap}</span>`;
+
+    /* scroll only if it overflows — measured, not assumed */
+    requestAnimationFrame(() => {
+      const inner = streamTitle.firstElementChild;
+      streamTitle.classList.toggle('roll',
+        inner && inner.scrollWidth / 2 > streamTitle.clientWidth + 2);
+    });
+  }
+
+  function loadTrack(i, at) {
+    if (!PLAYLIST.length || !stream) return;
+    trackIndex = ((i % PLAYLIST.length) + PLAYLIST.length) % PLAYLIST.length;
+    stream.src = PLAYLIST[trackIndex].src;
+    showTitle(trackIndex);
+    if (at) {
+      stream.addEventListener('loadedmetadata', function once() {
+        stream.removeEventListener('loadedmetadata', once);
+        try { stream.currentTime = at; } catch (e) {}
+      });
+    }
+  }
+
+  function save() {
+    if (!stream || !PLAYLIST.length) return;
+    try {
+      sessionStorage.setItem(STORE, JSON.stringify({
+        i: trackIndex,
+        t: stream.currentTime || 0,
+        on: streamOn
+      }));
+    } catch (e) {}
+  }
+
+  if (stream && PLAYLIST.length) {
+    let restored = null;
+    try { restored = JSON.parse(sessionStorage.getItem(STORE) || 'null'); } catch (e) {}
+
+    stream.muted = true;
+    loadTrack(restored ? restored.i : 0, restored ? restored.t : 0);
+    stream.play().catch(() => {});
+
+    if (restored && restored.on) {
+      // try to come back audible; revert cleanly if the browser says no
+      stream.muted = false;
+      stream.play().then(() => {
+        streamOn = true;
+        setStreamIcon();
+      }).catch(() => {
+        stream.muted = true;
+        streamOn = false;
+        setStreamIcon();
+      });
+    }
+
+    stream.addEventListener('ended', () => {
+      loadTrack(trackIndex + 1, 0);
+      stream.play().catch(() => {});
+    });
+
+    // pagehide is more reliable than unload on mobile Safari
+    window.addEventListener('pagehide', save);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') save();
+    });
+    setInterval(save, 4000);
+  } else {
+    showTitle(0);
+  }
+
+  streamMute.addEventListener('click', () => {
+    if (!stream || !PLAYLIST.length) {
+      streamOn = !streamOn;      // still toggles so the control isn't dead
+      setStreamIcon();
+      return;
+    }
+    streamOn = !streamOn;
+    stream.muted = !streamOn;
+    if (streamOn) stream.play().catch(() => {});
+    setStreamIcon();
+    save();
+  });
+
+  /* ── subscribe: one field, two destinations ───────────── */
+  const subInput = document.getElementById('subscribe-input');
+  const subBtn   = document.getElementById('subscribe-btn');
+  const consent  = document.getElementById('consent');
+  const status   = document.getElementById('form-status');
+  const hp       = document.getElementById('hp-field');
+  const loadedAt = Date.now();
+
+  const isEmail = v => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim());
+  const isPhone = v => /^\+?1?\d{10}$/.test(v.replace(/[^\d+]/g, ''));
+  const looksPhoneish = v => /^[\d\s().+-]{4,}$/.test(v.trim());
+
+  subInput.addEventListener('input', () => {
+    consent.classList.toggle('show', looksPhoneish(subInput.value));
+  });
+
+  function submitEmail(value) {
+    if (MAILCHIMP_ACTION === 'REPLACE_ME') {
+      status.textContent = 'mailchimp endpoint not yet configured.';
+      return;
+    }
+    const f = document.createElement('form');
+    f.action = MAILCHIMP_ACTION; f.method = 'POST'; f.target = '_blank';
+    const i = document.createElement('input');
+    i.type = 'hidden'; i.name = 'EMAIL'; i.value = value;
+    f.appendChild(i);
+    document.body.appendChild(f);
+    f.submit();
+    document.body.removeChild(f);
+    status.textContent = 'transmitted.';
+    subInput.value = '';
+  }
+
+  async function submitPhone(value) {
+    status.textContent = 'registering…';
+    try {
+      const res = await fetch(SMS_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: value })
+      });
+      status.textContent = res.ok
+        ? 'confirmation dispatched. reply YES to complete registration.'
+        : 'registration failed. try again.';
+      if (res.ok) subInput.value = '';
+    } catch {
+      status.textContent = 'registration failed. try again.';
+    }
+  }
+
+  subBtn.addEventListener('click', () => {
+    const v = subInput.value.trim();
+    if (!v || hp.value) return;
+    if (Date.now() - loadedAt < 2000) return;
+    if (isEmail(v))      submitEmail(v);
+    else if (isPhone(v)) submitPhone(v);
+    else status.textContent = 'enter an email address or a 10-digit number.';
+  });
+  subInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); subBtn.click(); }
+  });
+
+  /* ── search ────────────────────────────────────────────
+     Hands off to search.html, which loads the registries and
+     does the lookup there. Keeping the index off every other
+     page means the header stays light. */
+  const searchInput = document.getElementById('search-input');
+  const searchDots  = document.getElementById('search-dots');
+
+  searchInput.addEventListener('input', () => {
+    searchDots.classList.toggle('hide', searchInput.value.length > 0);
+  });
+
+  function runSearch() {
+    const v = searchInput.value.trim();
+    if (!v) { searchInput.focus(); return; }
+    window.location.href = 'search.html#q=' + encodeURIComponent(v);
+  }
+
+  document.getElementById('search-btn').addEventListener('click', runSearch);
+  searchInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); runSearch(); }
+  });
+
+  /* arriving at results, put the term back in the field */
+  if (PAGE === 'search') {
+    const q = decodeURIComponent((location.hash || '').replace(/^#q?=?/, ''));
+    if (q) {
+      searchInput.value = q;
+      searchDots.classList.add('hide');
+    }
+  }
+
+  window.BUG = { setMenu, PAGE, IS_HOME };
+})();

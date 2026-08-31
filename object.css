@@ -1,0 +1,175 @@
+/* ═══════════════════════════════════════════════════════════
+   B.U.G. — object page layout
+   Twin scrollers, same shape as the release pages.
+   ═══════════════════════════════════════════════════════════ */
+html, body { height: 100%; }
+body { overflow: hidden; }          /* the columns scroll, not the page */
+
+#page { display: flex; flex-direction: column; height: 100vh; }
+#chrome { flex: 0 0 auto; }
+
+.twin {
+  flex: 1 1 auto;
+  display: flex;
+  min-height: 0;
+  border-top: 1px solid rgba(4,0,255,0.18);
+}
+
+/* ── left: the shots ─────────────────────────────────────── */
+.col-shots {
+  position: relative;
+  z-index: 1;
+  flex: 0 0 50%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 30px 30px 120px 46px;
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+  scrollbar-width: thin;
+}
+.col-shots img { width: 100%; display: block; background: var(--white); cursor: zoom-in; }
+
+/* ── spine ───────────────────────────────────────────────── */
+.spine {
+  flex: 0 0 9px;
+  display: flex;
+  flex-direction: column;
+  align-self: stretch;
+  background: var(--blue);
+}
+.spine i { display: block; flex: 1 1 0; }
+
+/* ── right: the record ───────────────────────────────────── */
+.col-record {
+  position: relative;
+  z-index: 1;
+  flex: 1 1 auto;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.record-scroll {
+  position: relative;
+  z-index: 1;
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-height: 0;
+  scrollbar-width: thin;
+}
+
+.record {
+  /* set in caps like the catalog, so the object pages and the
+     release pages read as one system */
+  text-transform: uppercase;
+  padding: 34px 46px 140px 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  font-family: var(--type-cn);
+  color: var(--blue);
+}
+
+.record .title-block {
+  text-transform: uppercase;
+  position: relative;
+  z-index: 0;
+  display: inline-block;
+  color: var(--white);
+  font-weight: 700;
+  font-size: 42px;
+  line-height: 1;
+  letter-spacing: -0.05em;
+  padding: 0 calc(var(--block-pad) + 0.05em * var(--track-comp)) 0 var(--block-pad);
+  white-space: nowrap;
+}
+.record .title-block::before {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; top: 50%;
+  height: var(--block-h);
+  transform: translateY(-50%) translateY(calc((var(--cap-fix) + var(--cap-nudge)) * -1));
+  background: var(--blue);
+  z-index: -1;
+}
+
+.record .lead { width: 100%; margin: 26px 0 30px; display: block; }
+
+.meta, .note {
+  font-weight: 400;
+  font-size: 21px;
+  line-height: 1.42;
+  letter-spacing: -0.04em;
+  text-align: center;
+}
+.note {
+  margin-top: 22px;
+  max-width: 52ch;
+  line-height: 1.34;
+  text-align: center;
+}
+.record .no { margin-top: 26px; font-size: 21px; letter-spacing: -0.04em; }
+.note .gap { display: inline-block; height: 0.6em; }
+
+.buy {
+  margin-top: 26px;
+  font-weight: 700;
+  font-size: 26px;
+  line-height: 1;
+  letter-spacing: -0.05em;
+}
+
+/* ── LIGHTBOX ─────────────────────────────────────────────── */
+#lightbox {
+  position: fixed; inset: 0; z-index: 90;
+  background: rgba(255,255,255,0.94);
+  display: none; align-items: center; justify-content: center;
+  cursor: zoom-out;
+}
+#lightbox.open { display: flex; }
+#lightbox img {
+  max-width: 94vw; max-height: 88vh;
+  display: block; object-fit: contain; cursor: zoom-out;
+}
+#lb-meta {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  padding: 12px 18px;
+  font-family: var(--type-cn); font-weight: 400; font-size: 18px;
+  letter-spacing: -0.04em; color: var(--blue);
+  text-align: right; pointer-events: none;
+}
+.lb-btn {
+  position: absolute; background: none; border: 0; padding: 0;
+  cursor: pointer; font-family: var(--type-cn); font-weight: 700;
+  font-size: 40px; line-height: 1; color: var(--blue);
+  transition: color 0.14s ease, transform 0.2s cubic-bezier(0.3,1.5,0.5,1);
+}
+.lb-btn:hover { color: var(--orange); }
+#lb-prev { left: 16px; top: 50%; transform: translateY(-50%); }
+#lb-next { right: 16px; top: 50%; transform: translateY(-50%); }
+#lb-prev:hover { transform: translateY(-50%) scale(1.12); }
+#lb-next:hover { transform: translateY(-50%) scale(1.12); }
+#lb-close { right: 18px; top: 12px; font-size: 30px; }
+body.lb-open { overflow: hidden; }
+
+.record .lead { cursor: zoom-in; }
+
+/* ── mobile: record first, then the shots ────────────────── */
+@media (max-width: 900px) {
+  body { overflow: auto; }
+  #page { height: auto; display: block; }
+  .twin { display: flex; flex-direction: column; border-top: 0; }
+  .col-record { order: 1; display: block; overflow: visible; }
+  .spine      { order: 2; flex: none; width: 100%; height: 7px; flex-direction: row; }
+  .col-shots  { order: 3; flex: none; overflow: visible; padding: 26px 16px 40px; gap: 16px; }
+  .record-scroll { overflow: visible; flex: none; }
+  .record { padding: 24px 18px 60px; }
+  .record .title-block { font-size: 30px; }
+  .meta, .note, .record .no { font-size: 16px; }
+  .buy { font-size: 20px; }
+  .lb-btn { font-size: 30px; }
+  #lb-meta { font-size: 14px; }
+}

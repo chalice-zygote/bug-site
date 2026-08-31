@@ -1,0 +1,513 @@
+/* ═══════════════════════════════════════════════════════════
+   B.U.G. — shared chrome
+   Used by every page. Page-specific styling lives in the page.
+   ═══════════════════════════════════════════════════════════ */
+
+@font-face {
+  font-family: 'Heros Cn';
+  src: url('assets/fonts/heros-cn-bold.woff2') format('woff2');
+  font-weight: 700; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'Heros Cn';
+  src: url('assets/fonts/heros-cn-regular.woff2') format('woff2');
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+
+:root {
+  --orange:      #FF4400;
+  --yellow:      #FFDD00;
+  --blue:        #0400FF;
+  --nav-grey:    #AFAFAF;
+  --field-stroke:#AFAFAF;
+  --btn-fill:    #414149;
+  --ink:         #1E1E1E;
+  --white:       #FFFFFF;
+  --paper:       #FFFFFF;   /* matches the home page ground */
+
+  --chrome-scale: 0.5;
+
+  /* All-caps type sits ~0.11em ABOVE the line-box centre, because the
+     box reserves descender space capitals never use. Every inverted
+     block shifts up by this to centre on the letters instead of on
+     the line box. One number, tune it here. */
+  --cap-fix: 0.11em;
+
+  /* Manual trim on top of the measured value. Positive moves every
+     inverted block UP, negative moves it DOWN. Should only ever need
+     a hair — the measurement does the real work. */
+
+  /* Negative letter-spacing subtracts after EVERY character including
+     the last, so an element's right edge pulls in by the tracking
+     amount while the left stays put. Any inverted block therefore
+     needs that much extra padding-right or the type reads right-of-
+     centre. Full tracking overshoots though — the last glyph's right
+     sidebearing already supplies some of that space — so the
+     compensation is a FRACTION of it. One knob for every block. */
+  --track-comp: 0.5;
+
+  /* Height of every inverted block, and the air either side of the
+     type inside it. In em so they hold the same PROPORTION at any
+     size — px would give a 62px title different relative air than a
+     24px link. Every block on the site reads from these two. */
+  --block-h: 0.88em;
+  --block-pad: 0.17em;
+  --cap-nudge: 0.011em;
+  --drawer-w: min(78%, 460px);
+
+  --type-cn: 'Heros Cn', 'Helvetica Neue Condensed', 'Arial Narrow', Helvetica, sans-serif;
+  --type-serif: 'Times New Roman', Times, serif;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { background: var(--paper); }
+
+body {
+  background: var(--paper);
+  overflow-x: hidden;
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="24" viewBox="0 0 20 24"><path d="M2 1 L2 20 L7 15.5 L10.5 22.5 L13.5 21 L10 14.5 L16.5 14.5 Z" fill="%23FF4400" stroke="%231E1E1E" stroke-width="1.4" stroke-linejoin="round"/></svg>') 2 1, auto;
+}
+
+#nav-wrap nav a, #menu a, #menu-scrim { cursor: pointer; }
+
+/* midiWORLDlive — "midi" and "live" italic and lowercase, "WORLD"
+   upright and capital. Written as <span class="mw">…</span> wherever
+   it appears so it sets the same way on every page.
+
+   text-transform:none is load-bearing: the object and product pages
+   set everything in caps, which would otherwise flatten this to
+   MIDIWORLDLIVE. The wordmark is not subject to the house casing. */
+/* ── SHIMMER ──────────────────────────────────────────────
+   Blue with a slow gradient pass, orange on hover. Icons are
+   drawn as a MASK over the gradient — an <img> cannot be
+   recoloured or gradient-filled from CSS. Shared, because the
+   home page and the info page both use it.
+   ─────────────────────────────────────────────────────────── */
+.shim {
+  display: block;
+  /* a masked element has no intrinsic size — without these it
+     collapses to nothing and the icon simply vanishes */
+  width: 100%;
+  height: 100%;
+  background-image: linear-gradient(112deg,
+    var(--blue) 0%, var(--blue) 34%,
+    #6b66ff 46%, #ffffff 50%, #6b66ff 54%,
+    var(--blue) 66%, var(--blue) 100%);
+  background-size: 320% 100%;
+  animation: shim 4.6s linear infinite;
+  -webkit-mask: var(--icon) center / contain no-repeat;
+          mask: var(--icon) center / contain no-repeat;
+}
+@keyframes shim {
+  0%   { background-position: 130% 50%; }
+  100% { background-position: -30% 50%; }
+}
+
+.mw { text-transform: none !important; }
+.mw i { font-style: italic; }
+/* the upright D and the italic l collide loosely — pull them together */
+.mw i + i, .mw i:last-child { margin-left: -0.055em; }
+
+/* ── LINK BLOCK ───────────────────────────────────────────
+   The nav's active state as a hover: orange block, white type,
+   slight pop. Shared so page-level links can't drift from it.
+   ─────────────────────────────────────────────────────────── */
+.lb {
+  position: relative;
+  z-index: 0;
+  display: inline-block;
+  color: var(--blue);
+  text-decoration: none;
+  padding: 0 calc(var(--block-pad) + 0.05em * var(--track-comp)) 0 var(--block-pad);
+  transform: scale(1);
+  transition: color 0.14s ease, transform 0.2s cubic-bezier(0.3,1.5,0.5,1);
+}
+.lb::before {
+  content: '';
+  position: absolute;
+  left: 0; right: 0;
+  top: 50%;
+  height: var(--block-h);
+  transform: translateY(-50%) translateY(calc((var(--cap-fix) + var(--cap-nudge)) * -1)) scale(0.9);
+  background: var(--orange);
+  opacity: 0;
+  z-index: -1;
+  transition: opacity 0.14s ease, transform 0.2s cubic-bezier(0.3,1.5,0.5,1);
+}
+.lb:hover,
+.lb:focus-visible {
+  color: var(--white);
+  transform: scale(1.06);
+  outline: none;
+}
+/* Text flush with the column, block bleeding past it on both sides.
+   Without this the padding that makes room for the block indents the
+   type, and a list of titles stops lining up with everything else. */
+.lb-flush { margin-left: calc(var(--block-pad) * -1); }
+
+.lb:hover::before,
+.lb:focus-visible::before {
+  opacity: 1;
+  transform: translateY(-50%) translateY(calc((var(--cap-fix) + var(--cap-nudge)) * -1)) scale(1);
+}
+
+/* ── CHROME ───────────────────────────────────────────────
+   Each group keeps its Figma pixel values and is scaled once
+   by --chrome-scale from its own anchor corner, so widening
+   the viewport spreads them apart instead of growing them.
+   ─────────────────────────────────────────────────────────── */
+#chrome {
+  position: relative;
+  width: 100%;
+  height: 130px;
+  z-index: 30;
+}
+
+#nav-wrap {
+  position: absolute;
+  left: 26px; top: 10px;
+  transform: scale(var(--chrome-scale));
+  transform-origin: top left;
+}
+#speaker-wrap {
+  position: absolute;
+  left: 50%; top: 10px;
+  transform: translateX(-50%) scale(var(--chrome-scale));
+  transform-origin: top center;
+}
+#stack-wrap {
+  position: absolute;
+  right: 26px; top: 22px;
+  transform: scale(var(--chrome-scale));
+  transform-origin: top right;
+}
+
+#nav-wrap nav { position: relative; height: 76px; white-space: nowrap; }
+#nav-wrap nav a {
+  /* inline-flex + line-height 1 rather than line-height:76px. A tall
+     line box puts half-leading above the baseline that no other block
+     on the site has, which made the caps sit somewhere different here
+     than everywhere else — so any --cap-nudge that fixed the nav broke
+     the rest. Same row height, same type metrics as every other block. */
+  display: inline-flex;
+  align-items: center;
+  height: 76px;
+  line-height: 1;
+  font-family: var(--type-cn);
+  font-weight: 700;
+  font-size: 54.03px;
+  letter-spacing: -0.08em;
+  color: var(--nav-grey);
+  text-decoration: none;
+  margin-right: 29px;
+}
+#nav-wrap nav a:last-child { margin-right: 0; }
+#nav-wrap nav a.is-active {
+  position: relative;
+  z-index: 0;
+  color: var(--white);
+  background: none;
+  padding: 0 calc(var(--block-pad) + 0.08em * var(--track-comp)) 0 var(--block-pad);
+}
+#nav-wrap nav a.is-active::before {
+  content: '';
+  position: absolute;
+  left: 0; right: 0;
+  top: 50%;
+  height: var(--block-h);
+  transform: translateY(-50%) translateY(calc((var(--cap-fix) + var(--cap-nudge)) * -1));
+  background: var(--orange);
+  z-index: -1;
+}
+
+#speaker-toggle {
+  width: 421px; height: 220px;
+  background: none; border: 0; padding: 0;
+  cursor: pointer; display: block;
+}
+#speaker-toggle img { width: 100%; height: 100%; display: block; }
+
+#stack { width: 597.63px; }
+.row { display: flex; height: 59.52px; margin-bottom: 7px; }
+.row:last-child { margin-bottom: 0; }
+
+.input-wrap { flex: 1; min-width: 0; position: relative; display: flex; }
+.input-wrap input { width: 100%; }
+
+.row input {
+  flex: 1; min-width: 0;
+  height: 59.52px;
+  border: 2.43px solid var(--field-stroke);
+  background: var(--white);
+  font-family: var(--type-cn);
+  font-weight: 400;
+  font-size: 53.45px;
+  letter-spacing: -0.08em;
+  color: var(--orange);
+  padding: 0 6px;
+  outline: none;
+  cursor: text;
+}
+.row input::placeholder { color: var(--nav-grey); opacity: 1; }
+.row input:focus { border-color: var(--orange); }
+
+.row button {
+  width: 228.36px; height: 59.52px;
+  flex: 0 0 228.36px;
+  background: var(--btn-fill);
+  border: 0;
+  font-family: var(--type-cn);
+  font-weight: 700;
+  font-size: 65.62px;
+  letter-spacing: -0.08em;
+  color: var(--nav-grey);
+  cursor: pointer;
+  line-height: 1;
+  padding: 0 0 0 6px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+.row button:hover { color: var(--white); }
+
+#search-dots {
+  position: absolute; inset: 0;
+  display: flex; align-items: center;
+  padding: 0 6px;
+  pointer-events: none;
+  font-family: var(--type-cn);
+  font-weight: 400;
+  font-size: 53.45px;
+  letter-spacing: -0.08em;
+  color: var(--nav-grey);
+  line-height: 1;
+}
+#search-dots.hide { display: none; }
+#search-dots i { font-style: normal; opacity: 0; }
+#search-dots i:nth-child(1) { animation: dot 1.6s steps(1) infinite 0.4s; }
+#search-dots i:nth-child(2) { animation: dot 1.6s steps(1) infinite 0.8s; }
+#search-dots i:nth-child(3) { animation: dot 1.6s steps(1) infinite 1.2s; }
+@keyframes dot {
+  0%    { opacity: 1; }
+  75%   { opacity: 1; }
+  75.1% { opacity: 0; }
+  100%  { opacity: 0; }
+}
+
+#stream-row {
+  display: flex; align-items: center;
+  height: 59.52px;
+  background: var(--orange);
+  padding: 0 9px;
+}
+/* The title scrolls inside the bar and is clipped where the mute
+   button begins, so a long record name never runs under it. */
+#stream-title {
+  flex: 1; min-width: 0;
+  overflow: hidden;
+  mask-image: linear-gradient(90deg, #000 0, #000 92%, transparent 100%);
+  -webkit-mask-image: linear-gradient(90deg, #000 0, #000 92%, transparent 100%);
+}
+#stream-title span {
+  display: inline-block;
+  font-family: var(--type-serif);
+  font-weight: 700;
+  font-size: 40px;
+  letter-spacing: -0.08em;
+  color: var(--white);
+  white-space: nowrap;
+  will-change: transform;
+}
+/* only scrolls when it actually overflows — a short title sits still */
+#stream-title.roll span { animation: stream-roll 16s linear infinite; }
+@keyframes stream-roll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+#stream-mute {
+  flex: 0 0 auto;
+  width: 42px; height: 42px;
+  background: none; border: 0; padding: 0;
+  cursor: pointer;
+}
+#stream-mute img { width: 100%; height: 100%; display: block; }
+
+#consent {
+  margin-top: 6px;
+  font-family: var(--type-serif);
+  font-size: 17px;
+  line-height: 1.35;
+  color: var(--ink);
+  max-width: 597.63px;
+  display: none;
+}
+#consent.show { display: block; }
+#consent a { color: var(--ink); }
+
+#form-status {
+  margin-top: 6px;
+  font-family: var(--type-serif);
+  font-weight: 700;
+  font-size: 19px;
+  letter-spacing: -0.05em;
+  color: var(--orange);
+  min-height: 22px;
+}
+
+.hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+/* ── BURGER + DRAWER ─────────────────────────────────────── */
+#burger {
+  display: none;
+  position: absolute;
+  left: 18px; top: 16px;
+  width: 46px; height: 38px;
+  background: none; border: 0; padding: 0;
+  cursor: pointer;
+  z-index: 60;
+}
+#burger span {
+  display: block;
+  width: 100%; height: 6px;
+  margin-bottom: 8px;
+  background: var(--orange);
+}
+#burger span:last-child { margin-bottom: 0; }
+
+#menu-scrim {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0);
+  z-index: 54;
+  visibility: hidden;
+}
+#menu-scrim.open { visibility: visible; }
+
+#menu {
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  height: 100%;
+  width: var(--drawer-w);
+  background: var(--ink) url('assets/oranger-burger-bg.png') center / cover no-repeat;
+  z-index: 55;
+  transform: translateX(-100%);
+  transition: transform 0.34s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding: 62px 0 0;
+  visibility: hidden;
+  overflow-y: auto;
+}
+#menu.open { transform: translateX(0); visibility: visible; }
+
+#menu a {
+  font-family: var(--type-cn);
+  font-weight: 400;
+  font-size: 30px;
+  line-height: 0.86;
+  letter-spacing: -0.06em;
+  color: var(--ink);
+  text-decoration: none;
+  padding: 7px 24px;
+}
+#menu a.is-active {
+  position: relative;
+  z-index: 0;
+  color: var(--nav-grey);
+  background: none;
+  align-self: flex-start;
+  padding: 7px calc(var(--block-pad) + 0.06em * var(--track-comp)) 7px var(--block-pad);
+  margin-left: 19px;
+}
+#menu a.is-active::before {
+  content: '';
+  position: absolute;
+  left: 0; right: 0;
+  top: 50%;
+  height: var(--block-h);
+  transform: translateY(-50%) translateY(calc((var(--cap-fix) + var(--cap-nudge)) * -1));
+  background: var(--ink);
+  z-index: -1;
+}
+/* the mark and the rating sit together at the foot of the drawer */
+/* left edge matches the nav items above — 24px, the same padding
+   #menu a carries — rather than sitting centred on its own */
+#menu .menu-foot {
+  margin-top: auto;
+  padding: 7px 24px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 14px;
+}
+#menu .menu-mark {
+  font-family: var(--type-cn);
+  font-weight: 400;
+  font-size: 30px;
+  line-height: 0.86;
+  letter-spacing: -0.06em;
+  color: var(--ink);
+}
+#menu .rated { height: 40px; width: auto; display: block; }
+#menu .menu-mark .dot2 { font-style: normal; margin-left: -0.09em; margin-right: -0.09em; }
+
+#menu-close {
+  position: absolute;
+  top: 20px; left: 24px;
+  width: 22px; height: 22px;
+  background: none; border: 0; padding: 0;
+  cursor: pointer;
+}
+#menu-close::before, #menu-close::after {
+  content: '';
+  position: absolute;
+  left: 0; top: 10px;
+  width: 22px; height: 3px;
+  background: var(--ink);
+}
+#menu-close::before { transform: rotate(45deg); }
+#menu-close::after  { transform: rotate(-45deg); }
+
+body.menu-open #page { transform: translateX(var(--drawer-w)); }
+#page { transition: transform 0.34s cubic-bezier(0.4, 0, 0.2, 1); }
+
+/* ── MOBILE CHROME ───────────────────────────────────────── */
+@media (max-width: 900px) {
+  #burger { display: block; }
+  #nav-wrap { display: none; }
+
+  #chrome {
+    height: auto;
+    padding: 66px 16px 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  /* transform-scale is dropped here — a scaled box still occupies its
+     unscaled footprint, which breaks flex flow. Real pixel sizes instead. */
+  #speaker-wrap, #stack-wrap {
+    position: static;
+    transform: none;
+    width: 100%;
+    max-width: 380px;
+  }
+  #speaker-wrap { display: flex; justify-content: center; }
+  #speaker-toggle { width: 320px; height: 167px; }
+
+  #stack { width: 100%; }
+  .row { height: 40px; margin-bottom: 5px; }
+  .row input { height: 40px; font-size: 34px; border-width: 1.6px; padding: 0 4px; }
+  .row button { width: 148px; flex: 0 0 148px; height: 40px; font-size: 42px; padding: 0 0 0 4px; }
+  #search-dots { font-size: 34px; padding: 0 4px; }
+  #stream-row { height: 40px; padding: 0 6px; }
+  #stream-title { font-size: 25px; }
+  #stream-mute { width: 27px; height: 27px; }
+  #consent, #form-status { font-size: 13px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #menu, #page { transition: none; }
+}

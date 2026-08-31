@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MEDIA — BEAUTIFUL UNITY GYMNASIUM</title>
+<link rel="icon" href="assets/OFF-fav.svg" type="image/svg+xml">
+<link rel="stylesheet" href="bug.css">
+
+<style>
+/* ── MEDIA ────────────────────────────────────────────────
+   BUG.CHNL, newest first. Thumbnails only until clicked —
+   embedding seven players on load would pull several MB of
+   YouTube script before anyone watches anything.
+   ─────────────────────────────────────────────────────────── */
+#noise { position: fixed; inset: 0; z-index: 0; pointer-events: none;
+         opacity: 0.055; mix-blend-mode: multiply; }
+#page { position: relative; z-index: 1; }
+
+/* The letters bleed over the header and down onto the grid.
+   pointer-events:none so everything underneath stays clickable —
+   the video is decoration sitting on top, not a layer you have to
+   navigate around. Negative margins pull it past its own box. */
+#letters {
+  position: relative;
+  z-index: 80;          /* over everything on the page */
+  display: block;
+  width: min(1240px, 118%);
+  max-width: none;
+  height: auto;
+  margin: -132px auto -118px;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+main {
+  position: relative;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 24px 46px 160px;
+  font-family: var(--type-cn);
+  color: var(--blue);
+  --lh: 1.06;
+}
+
+.head { border-bottom: 3px solid var(--blue); padding-bottom: 9px; margin-bottom: 26px; }
+.obj-head { margin-top: 88px; }
+.head h1 { font-weight: 700; font-size: 46px; line-height: var(--lh); letter-spacing: -0.06em; }
+.head .sub { font-weight: 400; font-size: 19px; line-height: var(--lh); letter-spacing: -0.04em; }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 30px 22px; }
+
+/* a playing item takes the whole row — a 340px player is not worth
+   watching, and the grid reflows around it */
+.item.on { grid-column: 1 / -1; }
+
+.item .frame {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  background: rgba(4,0,255,0.06);
+  overflow: hidden;
+  cursor: pointer;
+}
+.item .frame img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.item .frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+
+/* play mark — a triangle, drawn rather than an asset */
+.play {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  pointer-events: none;
+}
+.play span {
+  width: 0; height: 0;
+  border-left: 30px solid var(--white);
+  border-top: 19px solid transparent;
+  border-bottom: 19px solid transparent;
+  margin-left: 8px;
+  filter: drop-shadow(0 0 10px rgba(0,0,0,0.45));
+  transition: transform 0.2s cubic-bezier(0.3,1.5,0.5,1);
+}
+.item .frame:hover .play span { transform: scale(1.18); }
+.item.on .play { display: none; }
+
+.objs { display: grid; grid-template-columns: repeat(auto-fill, minmax(390px, 1fr)); gap: 34px 26px; }
+.obj { display: block; color: var(--blue); text-decoration: none; }
+
+.obj .plate {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: var(--white);
+}
+/* `inset` sits the art inside the plate with a little air, fitted
+   rather than cropped. Tight margins because the point is the object,
+   not the box around it. */
+/* inset tiles sit inside the plate, fitted rather than cropped */
+.obj .plate.inset img,
+.obj .plate.inset video {
+  inset: 6%;
+  width: 88%; height: 88%;
+  object-fit: contain;
+}
+
+/* Fills the plate. Where a photo is squarer than the plate this
+   crops top and bottom, so `pos` in objects.js chooses WHICH part
+   survives rather than leaving it to the centre. */
+.obj .plate img {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  object-position: var(--pos, center);
+  display: block;
+}
+/* a tile whose art is not square is fitted rather than cropped —
+   cover would cut the flag in half */
+/* second still revealed on hover — both preloaded, so no flash */
+/* A hard swap, not a cross-fade — no transition anywhere, and the
+   base is hidden the instant the alt appears, so the two are never
+   blended. Both stay in the DOM only so the second is already
+   decoded when the swap happens. */
+/* the flag loop breaks its tile the way the sims break their cells
+   on the flags page — oversized on purpose, so overflow is visible */
+.obj .plate video {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 128%;
+  height: auto;
+  transform: translate(-50%, -50%);
+  object-fit: contain;
+  display: block;
+}
+.obj .plate:has(video) { overflow: visible; }
+
+.obj .plate .alt         { opacity: 0; }
+.obj:hover .plate .base  { opacity: 0; }
+.obj:hover .plate .alt   { opacity: 1; }
+
+.obj .n { margin-top: 1px; font-weight: 400; font-size: 17px;
+          line-height: var(--lh); letter-spacing: -0.04em; opacity: 0.66; }
+.obj .t { margin-top: 0; font-weight: 700; font-size: 25px;
+          line-height: var(--lh); letter-spacing: -0.05em;
+          text-transform: uppercase; }
+.obj .m { margin-top: 1px; font-weight: 400; font-size: 17px;
+          line-height: var(--lh); letter-spacing: -0.04em; opacity: 0.66; }
+.obj:hover .t { color: var(--orange); }
+
+.cat {
+  margin-top: 9px;
+  font-weight: 400; font-size: 17px; line-height: var(--lh);
+  letter-spacing: -0.04em; opacity: 0.66;
+}
+.ttl {
+  margin-top: 2px;
+  font-weight: 700; font-size: 25px; line-height: var(--lh);
+  letter-spacing: -0.05em;
+}
+.meta {
+  margin-top: 3px;
+  font-weight: 400; font-size: 17px; line-height: var(--lh);
+  letter-spacing: -0.04em; opacity: 0.66;
+}
+.meta a { color: inherit; }
+
+@media (max-width: 900px) {
+  main { padding: 14px 16px 110px; }
+  .head h1 { font-size: 30px; }
+  .grid { grid-template-columns: 1fr; gap: 24px; }
+  .ttl { font-size: 20px; }
+  .cat, .meta { font-size: 15px; }
+  .obj-head { margin-top: 54px; }
+  .objs { grid-template-columns: 1fr; gap: 26px; }
+  .obj .t { font-size: 20px; }
+  .obj .n, .obj .m { font-size: 15px; }
+  #letters { width: 128%; margin: -62px auto -56px; }
+}
+</style>
+</head>
+
+<body data-page="media">
+
+<svg id="noise" xmlns="http://www.w3.org/2000/svg">
+  <filter id="grain"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/>
+  <feColorMatrix type="saturate" values="0"/></filter>
+  <rect width="100%" height="100%" filter="url(#grain)"/>
+</svg>
+
+<div id="page">
+  <div id="chrome-mount"></div>
+  <main>
+    <video id="letters" autoplay loop muted playsinline></video>
+
+    <div class="head">
+      <h1>VIDEO</h1>
+    </div>
+    <div class="grid" id="grid"></div>
+
+    <div class="head obj-head">
+      <h1>OBJECT</h1>
+    </div>
+    <div class="objs" id="objs"></div>
+  </main>
+</div>
+
+<audio id="stream" preload="none"></audio>
+
+<script src="channels.js"></script>
+<script src="objects.js"></script>
+<script src="bug-chrome.js"></script>
+<script>
+(() => {
+  'use strict';
+
+  /* ═══════════════════════════════════════════════════════
+     CODEC SELECTION — same as the home page.
+     Safari renders VP9 alpha as a solid black box and reports
+     "probably" for it, so <source> fallback cannot be used.
+     ═══════════════════════════════════════════════════════ */
+  const IS_WEBKIT = navigator.vendor === 'Apple Computer, Inc.';
+  const VEXT = IS_WEBKIT ? '.mp4' : '.webm';
+  document.getElementById('letters').src = 'assets/logo' + VEXT;
+
+  const list = (window.CHANNELS || []).slice().sort((a, b) => b.cat.localeCompare(a.cat));
+
+  document.getElementById('grid').innerHTML = list.map(c => `
+    <div class="item" data-yt="${c.yt}">
+      <div class="frame">
+        <img src="https://i.ytimg.com/vi/${c.yt}/hqdefault.jpg"
+             alt="${c.artist} — ${c.title}" loading="lazy">
+        <div class="play"><span></span></div>
+      </div>
+      <div class="cat">${c.catDisp}</div>
+      <div class="ttl">${c.artist} - ${c.title}</div>
+      <div class="meta">${c.dur} &middot; ${c.date} &middot;
+        <a href="https://www.youtube.com/watch?v=${c.yt}" target="_blank" rel="noopener">YOUTUBE</a>
+      </div>
+    </div>`).join('');
+
+  document.getElementById('objs').innerHTML = (window.OBJECTS || [])
+    .slice().sort((a, b) => a.cat.localeCompare(b.cat))
+    .map(o => `
+      <a class="obj" href="${o.href || '#'}">
+        ${o.thumbVideo ? `<div class="plate${o.inset ? ' inset' : ''}"${o.pos ? ` style="--pos:${o.pos}"` : ''}>
+          <video src="${o.thumbVideo}${VEXT}" autoplay loop muted playsinline></video>
+        </div>`
+        : o.thumb ? `<div class="plate${o.inset ? ' inset' : ''}"${o.pos ? ` style="--pos:${o.pos}"` : ''}>
+          <img class="base" src="${o.thumb}" alt="" loading="lazy">
+          ${o.thumbAlt ? `<img class="alt" src="${o.thumbAlt}" alt="" loading="lazy">` : ''}
+        </div>` : ''}
+        <div class="n">${o.catDisp}</div>
+        <div class="t">${o.title}</div>
+      </a>`).join('');
+
+  /* Swap the still for a player only on click. Seven iframes on load
+     would pull several MB of YouTube script and set cookies before
+     anyone has watched anything. */
+  document.querySelectorAll('.item .frame').forEach(f => {
+    f.addEventListener('click', e => {
+      if (e.target.closest('a')) return;
+      const item = f.closest('.item');
+      if (item.classList.contains('on')) return;
+      item.classList.add('on');
+      item.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      f.innerHTML =
+        `<iframe src="https://www.youtube-nocookie.com/embed/${item.dataset.yt}?autoplay=1&rel=0"
+                 title="" allow="accelerometer; autoplay; encrypted-media; picture-in-picture"
+                 allowfullscreen></iframe>`;
+    });
+  });
+})();
+</script>
+
+</body>
+</html>

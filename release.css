@@ -1,0 +1,377 @@
+/* ═══════════════════════════════════════════════════════════
+   B.U.G. — release page layout
+   Shared by every per-release page. Linked after bug.css.
+   ═══════════════════════════════════════════════════════════ */
+/* ── RELEASE ──────────────────────────────────────────────
+   Two independent scrollers side by side: documentation
+   plates left, record left-to-right. On mobile they collapse
+   into one column and the page scrolls normally.
+   ─────────────────────────────────────────────────────────── */
+html, body { height: 100%; }
+body { overflow: hidden; }          /* the columns scroll, not the page */
+
+#page {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+#chrome { flex: 0 0 auto; }
+
+.twin {
+  flex: 1 1 auto;
+  display: flex;
+  min-height: 0;                    /* lets the children actually scroll */
+  border-top: 1px solid rgba(4,0,255,0.18);
+}
+
+/* ── left: documentation stack ───────────────────────────── */
+.col-plates {
+  position: relative;
+  z-index: 1;
+  flex: 0 0 50%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 30px 30px 120px 46px;
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+  scrollbar-width: thin;
+}
+.col-plates img {
+  width: 100%;
+  display: block;
+  background: var(--white);
+}
+
+/* ── right: the record ───────────────────────────────────── */
+/* The ground must NOT live inside the scroller, or it scrolls away
+   with the content and clips at the column height. So col-record is a
+   frame: ground pinned to it, a separate inner element does the
+   scrolling. */
+.col-record {
+  flex: 1 1 auto;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.record-scroll {
+  position: relative;
+  z-index: 1;
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-height: 0;
+  scrollbar-width: thin;
+}
+
+/* ── SPINE ────────────────────────────────────────────────
+   Thin abutted blocks sampled from the artwork: a luminance
+   ramp with the record's most saturated colour dropped in as
+   the single pop. Spans the full height of the column.
+   ─────────────────────────────────────────────────────────── */
+.spine {
+  flex: 0 0 9px;
+  display: flex;
+  flex-direction: column;
+  align-self: stretch;
+  background: var(--blue);
+}
+.spine i { display: block; flex: 1 1 0; }
+
+/* ── GROUND ───────────────────────────────────────────────
+   The cover blown far past recognition and stretched vertically,
+   so it reads as a field of colour rather than an image. Two
+   layers at different scales and rotations drift against each
+   other on long, unequal cycles — they never resynchronise, so
+   the field keeps churning instead of looping visibly.
+   ─────────────────────────────────────────────────────────── */
+.ground-wrap {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.ground, .ground-b {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  will-change: transform;
+}
+/* The ground is now a purpose-made image, so it is shown as authored —
+   no blur, no stretch. Only a slow drift so the field breathes. */
+.ground {
+  animation: drift-a 46s ease-in-out infinite alternate;
+}
+.ground-b { display: none; }   /* second layer retired with the blur */
+
+@keyframes drift-a {
+  0%   { transform: scale(1.06) translate(-1.2%, -0.8%); }
+  100% { transform: scale(1.14) translate(1.2%, 1%); }
+}
+
+/* wash + grain, so the field has tooth instead of reading as a
+   flat gradient */
+/* wash retired — the supplied ground is already at the intended value */
+.ground-grain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.16;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+
+/* padding mirrors .col-plates so images in both columns come out
+   the same width — 50/50 split, 76px of horizontal padding each */
+.record {
+  position: relative;
+  z-index: 1;
+  padding: 34px 46px 140px 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  font-family: var(--type-cn);
+  --record-ink: var(--blue);
+  color: var(--record-ink);
+}
+
+/* the type run — a panel goes behind ONLY this when a record's ground
+   is too dark to read blue on. Images stay on the artwork. */
+.type-panel {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.record.has-panel .type-panel {
+  background: var(--panel, rgba(255,255,255,0.69));
+  border-radius: 14px;
+  padding: 30px 28px 34px;
+}
+
+.record .title-block {
+  position: relative;
+  z-index: 0;
+  display: inline-block;
+  background: none;
+  color: var(--white);
+  font-weight: 700;
+  font-size: 42px;
+  line-height: 1;
+  letter-spacing: -0.05em;
+  padding: 0 calc(var(--block-pad) + 0.05em * var(--track-comp)) 0 var(--block-pad);
+  white-space: nowrap;
+}
+.record .title-block::before {
+  content: '';
+  position: absolute;
+  left: 0; right: 0;
+  top: 50%;
+  height: var(--block-h);
+  transform: translateY(-50%) translateY(calc((var(--cap-fix) + var(--cap-nudge)) * -1));
+  background: var(--blue);
+  z-index: -1;
+}
+
+.record .cover {
+  width: 100%;
+  margin: 26px 0 30px;
+  display: block;
+}
+
+.credits .gap { display: inline-block; height: 0.7em; }
+.credits, .tracks {
+  font-weight: 400;
+  font-size: 21px;
+  line-height: 1.42;
+  letter-spacing: -0.04em;
+}
+.tracks { margin-top: 30px; }
+
+/* editorial note — set apart from the credit block by size, measure
+   and slope rather than by a second typeface. Entries are paragraphs
+   and wrap on their own. */
+.note {
+  margin-top: 34px;
+  max-width: 54ch;
+  font-family: var(--type-cn);
+  font-weight: 400;
+  font-style: italic;
+  font-size: 19px;
+  line-height: 1.36;
+  letter-spacing: -0.03em;
+  text-align: left;
+}
+.note p { margin: 0 0 0.7em; }
+.note p:last-child { margin-bottom: 0; }
+.note-lead {
+  font-style: normal;
+  font-weight: 400;
+  font-size: 21px;
+  letter-spacing: -0.04em;
+  text-transform: uppercase;
+  margin-bottom: 0.55em;
+}
+.record .url { margin-top: 30px; font-size: 21px; letter-spacing: -0.04em; }
+
+/* ── stream links ─────────────────────────────────────────
+   Same inversion the nav uses for its active page: on hover
+   the label takes an orange block and white type. The block
+   snaps in with steps() rather than fading, matching the
+   nav's flat switch.
+   ─────────────────────────────────────────────────────────── */
+.listen-head {
+  margin-top: 40px;
+  font-weight: 700;
+  font-size: 32px;
+  letter-spacing: -0.05em;
+}
+.listen {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 11px;
+}
+/* gentle pop on hover — the block appears and the label swells a hair.
+   The block is a pseudo-element so it stays centred on the caps. */
+.listen a {
+  position: relative;
+  z-index: 0;
+  color: var(--record-ink);
+  display: inline-block;
+  font-weight: 700;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: -0.05em;
+  text-decoration: none;
+  padding: 0 calc(var(--block-pad) + 0.05em * var(--track-comp)) 0 var(--block-pad);
+  transform: scale(1);
+  transition: color 0.14s ease, transform 0.2s cubic-bezier(0.3,1.5,0.5,1);
+}
+.listen a::before {
+  content: '';
+  position: absolute;
+  left: 0; right: 0;
+  top: 50%;
+  height: var(--block-h);
+  transform: translateY(-50%) translateY(calc((var(--cap-fix) + var(--cap-nudge)) * -1)) scale(0.9);
+  background: var(--orange);
+  opacity: 0;
+  z-index: -1;
+  transition: opacity 0.14s ease, transform 0.2s cubic-bezier(0.3,1.5,0.5,1);
+}
+.listen a:hover,
+.listen a:focus-visible {
+  color: var(--white);
+  transform: scale(1.09);
+  outline: none;
+}
+.listen a:hover::before,
+.listen a:focus-visible::before {
+  opacity: 1;
+  transform: translateY(-50%) translateY(calc((var(--cap-fix) + var(--cap-nudge)) * -1)) scale(1);
+}
+
+/* Artist sigil. Laid out as a GRID rather than spaced with characters:
+   in a proportional face an arrow and a space are different widths, so
+   character spacing can never come out symmetric. Every cell is the
+   same box, which makes the drawing symmetric by construction.
+   These glyphs are Unicode symbols outside the Heros subset and fall
+   through to a system face — expected. */
+.mark {
+  margin-top: 30px;
+  display: inline-block;
+  color: var(--record-ink);
+  text-decoration: none;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 26px;
+  line-height: 1;
+  transform: scale(1);
+  transition: transform 0.2s cubic-bezier(0.3,1.5,0.5,1);
+}
+a.mark { cursor: pointer; }
+a.mark:hover,
+a.mark:focus-visible {
+  transform: scale(1.09);
+  outline: none;
+}
+.mark-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--mark-cols, 9), 0.31em);
+  justify-content: center;
+}
+.mark i {
+  font-style: normal;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 0.66em;
+}
+
+.record .lockup { width: 210px; margin-top: 34px; display: block; }
+.record .sleeve { width: 100%; margin-top: 40px; display: block; }
+.record .sleeve + .sleeve { margin-top: 26px; }
+
+/* ── mobile: one column, page scrolls ────────────────────── */
+@media (max-width: 900px) {
+  body { overflow: auto; }
+  #page { height: auto; display: block; }
+  /* record first, documentation after — the substance leads on mobile.
+     Flex ordering, so the DOM stays in desktop order and nothing else
+     has to change. */
+  .twin {
+    display: flex;
+    flex-direction: column;
+    border-top: 0;
+  }
+  .col-record { order: 1; }
+  .spine      { order: 2; }
+  .col-plates { order: 3; }
+
+  /* The ground goes fixed across the whole viewport, but it lives
+     INSIDE .col-record — so col-record's stacking context carries it
+     over anything at the same z-index that comes earlier in the DOM.
+     .col-plates therefore has to sit strictly ABOVE col-record, not
+     merely be positioned. */
+  .ground-wrap { position: fixed; inset: 0; z-index: 0; }
+
+  .col-plates {
+    position: relative;
+    z-index: 2;
+    flex: none;
+    overflow: visible;
+    padding: 26px 16px 40px;
+    gap: 16px;
+  }
+
+  .spine { position: relative; z-index: 2; flex: none; width: 100%; height: 7px; flex-direction: row; }
+
+  .col-record {
+    position: relative;
+    z-index: 1;          /* strictly below .col-plates */
+    display: block;
+    overflow: visible;
+    border-left: 0;
+    margin-top: 0;
+  }
+  .record-scroll { overflow: visible; flex: none; }
+
+  .record { padding: 24px 18px 90px; }
+  .record.has-panel .type-panel { margin: 0 -8px; padding: 22px 20px 26px; border-radius: 10px; }
+  .record .cover,
+  .record .sleeve { width: 100%; }
+  .record .title-block { font-size: 30px; }
+  .credits, .tracks, .record .url { font-size: 16px; }
+  .note { font-size: 14px; margin-top: 26px; }
+  .listen-head { font-size: 25px; }
+  .listen a { font-size: 19px; }
+  .mark { font-size: 21px; margin-top: 22px; }
+}

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SEARCH — BEAUTIFUL UNITY GYMNASIUM</title>
+<link rel="icon" href="assets/OFF-fav.svg" type="image/svg+xml">
+<link rel="stylesheet" href="bug.css">
+
+<style>
+/* ── SEARCH ───────────────────────────────────────────────
+   Registry lookup, not a search engine. Results are grouped
+   by division and each row says what it is.
+   ─────────────────────────────────────────────────────────── */
+#noise { position: fixed; inset: 0; z-index: 0; pointer-events: none;
+         opacity: 0.055; mix-blend-mode: multiply; }
+#page { position: relative; z-index: 1; }
+
+main {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 24px 46px 160px;
+  font-family: var(--type-cn);
+  color: var(--blue);
+  --lh: 1.06;
+}
+
+.head { border-bottom: 3px solid var(--blue); padding-bottom: 9px; margin-bottom: 8px; }
+.head h1 { font-weight: 700; font-size: 46px; line-height: var(--lh); letter-spacing: -0.06em; }
+.head .sub { font-weight: 400; font-size: 19px; line-height: var(--lh); letter-spacing: -0.04em; }
+
+.grp {
+  display: flex; align-items: baseline; gap: 12px;
+  margin: 46px 0 4px; padding-bottom: 7px;
+  border-bottom: 1px solid rgba(4,0,255,0.34);
+  font-weight: 700; font-size: 28px; line-height: var(--lh); letter-spacing: -0.05em;
+}
+.grp .n { font-weight: 400; font-size: 17px; opacity: 0.6; }
+
+.hit {
+  display: grid;
+  grid-template-columns: 190px 1fr 190px;
+  gap: 14px;
+  padding: 6px 0;
+  font-weight: 400; font-size: 19px; line-height: var(--lh); letter-spacing: -0.04em;
+  border-bottom: 1px solid rgba(4,0,255,0.1);
+  color: inherit; text-decoration: none;
+}
+.hit:hover { color: var(--orange); }
+.hit .no  { font-weight: 700; white-space: nowrap; }
+.hit .why { opacity: 0.62; text-align: right; white-space: nowrap;
+            overflow: hidden; text-overflow: ellipsis; }
+.hit mark { background: var(--yellow); color: var(--ink); }
+
+.none { padding: 40px 0; font-weight: 400; font-size: 24px; letter-spacing: -0.04em; }
+.terms { margin-top: 60px; font-weight: 400; font-size: 17px;
+         line-height: 1.4; letter-spacing: -0.04em; opacity: 0.6; max-width: 62ch; }
+
+@media (max-width: 900px) {
+  main { padding: 14px 16px 110px; }
+  .head h1 { font-size: 30px; }
+  .grp { font-size: 21px; }
+  .hit { grid-template-columns: 1fr; gap: 1px; padding: 10px 0; font-size: 16px; }
+  .hit .why { text-align: left; white-space: normal; }
+}
+</style>
+</head>
+
+<body data-page="search">
+
+<svg id="noise" xmlns="http://www.w3.org/2000/svg">
+  <filter id="grain"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/>
+  <feColorMatrix type="saturate" values="0"/></filter>
+  <rect width="100%" height="100%" filter="url(#grain)"/>
+</svg>
+
+<div id="page">
+  <div id="chrome-mount"></div>
+  <main>
+    <div class="head">
+      <h1>SEARCH</h1>
+      <div class="sub" id="sub"></div>
+    </div>
+    <div id="results"></div>
+  </main>
+</div>
+
+<audio id="stream" preload="none"></audio>
+
+<script src="releases.js"></script>
+<script src="programs.js"></script>
+<script src="channels.js"></script>
+<script src="objects.js"></script>
+<script src="bug-chrome.js"></script>
+<script>
+(() => {
+  'use strict';
+
+  /* The term rides in the HASH, not a query string. `serve` rewrites
+     /search.html?q=x to /search and drops the parameter — the same
+     failure that forced per-release pages earlier. A hash never
+     reaches the server, so nothing can strip it. */
+  const readQ = () => decodeURIComponent((location.hash || '').replace(/^#q?=?/, '')).trim();
+  const q = readQ();
+
+  /* searching again from this page shouldn't need a reload */
+  window.addEventListener('hashchange', () => location.reload());
+  const strip = t => String(t || '').replace(/<[^>]+>/g, '').replace(/&[a-z]+;/g, ' ');
+
+  /* ═══════════════════════════════════════════════════════
+     THE INDEX
+
+     Built from the same registries the pages render from, so a
+     record cannot exist on the site and be missing from search.
+     Every field a person might reach for goes into the haystack:
+     catalogue numbers, artists, titles, formats, dates, venues,
+     cities, personnel, tracklists, credits, materials, colours.
+     ═══════════════════════════════════════════════════════ */
+  const IDX = [];
+  const add = (group, o) => IDX.push({
+    group,
+    no: o.no, title: o.title, why: o.why || '', href: o.href,
+    hay: strip([o.no, o.title, o.why, (o.extra || []).join(' ')].join(' ')).toLowerCase()
+  });
+
+  (window.RELEASES || []).forEach(r => add('WRKS', {
+    no: r.catDisp, title: strip(r.artist) + ' — ' + strip(r.title),
+    why: r.format + ' ' + r.date, href: r.id + '.html',
+    extra: [r.artist, r.title, r.format, r.date, r.artworkBy, r.url,
+            ...(r.tracks || []), ...(r.credits || []).map(strip),
+            ...(r.note || []).map(strip),
+            ...(r.listen || []).map(l => l.label)]
+  }));
+
+  (window.PROGRAMS || []).forEach(p => add('PRGM', {
+    no: p.catDisp, title: strip(p.title), why: p.venue ? strip(p.venue) : p.date,
+    href: 'gallery.html#' + p.slug,
+    extra: [p.title, p.sub, p.venue, p.date, ...(p.bill || []).map(strip),
+            ...(p.parts || []).flatMap(l => [l.city, l.venue, l.with])]
+  }));
+
+  (window.CHANNELS || []).forEach(c => add('CHNL', {
+    no: c.catDisp, title: strip(c.artist) + ' — ' + strip(c.title),
+    why: c.dur + ' ' + c.date, href: 'media.html',
+    extra: [c.artist, c.title, c.dur, c.date, 'video']
+  }));
+
+  (window.OBJECTS || []).forEach(o => add('OBJT', {
+    no: o.catDisp, title: strip(o.title), why: strip(o.meta) || 'object',
+    href: o.href || 'media.html',
+    extra: [o.title, o.meta, ...(Array.isArray(o.note) ? o.note.map(strip) : [strip(o.note)])]
+  }));
+
+  /* ── query ─────────────────────────────────────────────
+     Every term must appear somewhere in a record, in any field
+     and any order — so "uriel 2026" and "portland benzy" both
+     work without anyone learning a syntax. */
+  const terms = q.toLowerCase().split(/\s+/).filter(Boolean);
+  const hits = terms.length
+    ? IDX.filter(r => terms.every(t => r.hay.includes(t)))
+    : [];
+
+  const mark = (text, ts) => {
+    let out = text;
+    ts.forEach(t => {
+      out = out.replace(new RegExp('(' + t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'ig'),
+                        '<mark>$1</mark>');
+    });
+    return out;
+  };
+
+  const sub = document.getElementById('sub');
+  const res = document.getElementById('results');
+
+  if (!terms.length) {
+    sub.textContent = 'NO TERM SUPPLIED.';
+    res.innerHTML = '<div class="none">ENTER A TERM IN THE FIELD ABOVE.</div>' + termsNote();
+    return;
+  }
+
+  sub.innerHTML = '&ldquo;' + q.toUpperCase() + '&rdquo; &middot; ' +
+                  hits.length + (hits.length === 1 ? ' ENTRY' : ' ENTRIES');
+
+  if (!hits.length) {
+    res.innerHTML = '<div class="none">NOTHING FILED UNDER THAT TERM.</div>' + termsNote();
+    return;
+  }
+
+  const ORDER = ['WRKS', 'PRGM', 'CHNL', 'OBJT'];
+  res.innerHTML = ORDER.map(g => {
+    const rows = hits.filter(h => h.group === g);
+    if (!rows.length) return '';
+    return `<div class="grp">BUG.${g}<span class="n">[${rows.length}]</span></div>` +
+      rows.map(h => `
+        <a class="hit" href="${h.href}">
+          <span class="no">${h.no}</span>
+          <span class="ttl">${mark(h.title, terms)}</span>
+          <span class="why">${h.why}</span>
+        </a>`).join('');
+  }).join('') + termsNote();
+
+  function termsNote() {
+    return '<div class="terms">Searches catalogue numbers, artists, titles, formats, ' +
+           'dates, venues, cities, personnel, tracklists, credits and materials. ' +
+           'All terms must appear; order does not matter.</div>';
+  }
+})();
+</script>
+
+</body>
+</html>

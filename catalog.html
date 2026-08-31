@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CATALOG — BEAUTIFUL UNITY GYMNASIUM</title>
+<link rel="icon" href="assets/OFF-fav.svg" type="image/svg+xml">
+<link rel="stylesheet" href="bug.css">
+
+<style>
+/* ── CATALOG ──────────────────────────────────────────────
+   One release per band: URL rail, bordered plate, title
+   block, credit lines. Everything sized off --plate so the
+   whole page scales from one number.
+   ─────────────────────────────────────────────────────────── */
+:root {
+  --plate: 760px;         /* artwork edge length */
+  --rule: 3px;            /* border weight */
+}
+
+#noise {
+  position: fixed; inset: 0;
+  z-index: 0; pointer-events: none;
+  opacity: 0.055; mix-blend-mode: multiply;
+}
+
+#page { position: relative; z-index: 1; }
+
+main {
+  padding: 30px 0 160px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 130px;
+}
+
+.release {
+  width: var(--plate);
+  max-width: calc(100vw - 48px);
+  text-decoration: none;
+  display: block;
+}
+
+/* URL rail above the plate */
+.rail {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  font-family: var(--type-cn);
+  font-weight: 400;
+  font-size: 26px;
+  letter-spacing: -0.05em;
+  color: var(--blue);
+  margin-bottom: 7px;
+}
+
+.plate {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border: var(--rule) solid var(--blue);
+  overflow: hidden;
+  background: var(--white);
+}
+.plate img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* title block — white on blue, hugging the words */
+.title-line {
+  display: flex;
+  justify-content: center;
+  margin-top: 18px;
+}
+/* block drawn as a pseudo-element so its height is set off the cap
+   height rather than by padding — lets the top/bottom sit tight */
+.title-block {
+  position: relative;
+  z-index: 0;
+  display: inline-block;
+  background: none;
+  color: var(--white);
+  font-family: var(--type-cn);
+  font-weight: 700;
+  font-size: 62px;
+  line-height: 1;
+  letter-spacing: -0.05em;
+  padding: 0 calc(var(--block-pad) + 0.05em * var(--track-comp)) 0 var(--block-pad);
+  white-space: nowrap;
+}
+.title-block::before {
+  content: '';
+  position: absolute;
+  left: 0; right: 0;
+  top: 50%;
+  height: var(--block-h);
+  transform: translateY(-50%) translateY(calc((var(--cap-fix) + var(--cap-nudge)) * -1));
+  background: var(--blue);
+  z-index: -1;
+}
+
+.meta {
+  margin-top: 9px;
+  text-align: center;
+  font-family: var(--type-cn);
+  font-weight: 400;
+  font-size: 27px;
+  line-height: 1.18;
+  letter-spacing: -0.05em;
+  color: var(--blue);
+}
+
+@media (max-width: 900px) {
+  :root { --plate: 560px; --rule: 2px; }
+  main { gap: 88px; padding: 14px 0 110px; }
+  .rail { font-size: 17px; }
+  .title-block { font-size: 38px; }
+  .meta { font-size: 18px; }
+}
+</style>
+</head>
+
+<body data-page="catalog">
+
+<svg id="noise" xmlns="http://www.w3.org/2000/svg">
+  <filter id="grain">
+    <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/>
+    <feColorMatrix type="saturate" values="0"/>
+  </filter>
+  <rect width="100%" height="100%" filter="url(#grain)"/>
+</svg>
+
+<div id="page">
+  <div id="chrome-mount"></div>
+  <main id="catalog"></main>
+</div>
+
+<audio id="stream" preload="none"></audio>
+
+<script src="releases.js"></script>
+<script src="bug-chrome.js"></script>
+<script>
+(() => {
+  'use strict';
+  const main = document.getElementById('catalog');
+
+  /* newest first — the register counts up, the shelf reads down */
+  const ordered = window.RELEASES.slice().sort((a, b) => (b.cat || '').localeCompare(a.cat || ''));
+
+  main.innerHTML = ordered.map(r => `
+    <a class="release" href="${r.id}.html">
+      <div class="rail">
+        <span>${r.cat}</span>
+        <span>${r.url}</span>
+      </div>
+      <div class="plate">
+        <img src="${r.cover}" alt="${r.artist} — ${r.title}">
+      </div>
+      <div class="title-line">
+        <span class="title-block">${r.artist} - ${r.title}</span>
+      </div>
+      <div class="meta">
+        ${r.format} ${r.date}<br>
+        ARTWORK BY ${r.artworkBy}<br>
+        ${r.catDisp}
+      </div>
+    </a>`).join('');
+})();
+</script>
+
+</body>
+</html>

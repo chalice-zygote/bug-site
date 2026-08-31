@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>INFO — BEAUTIFUL UNITY GYMNASIUM</title>
+<link rel="icon" href="assets/OFF-fav.svg" type="image/svg+xml">
+<link rel="stylesheet" href="bug.css">
+
+<style>
+/* ═══════════════════════════════════════════════════════════
+   INFO
+
+   Opens as a gate: the thought over a blurred ground, then a
+   yes or no. No leaves. Yes clears the splash and hands over
+   the contact sheet underneath.
+   ═══════════════════════════════════════════════════════════ */
+#noise { position: fixed; inset: 0; z-index: 0; pointer-events: none;
+         opacity: 0.055; mix-blend-mode: multiply; }
+#page { position: relative; z-index: 1; }
+
+/* ── the gate ─────────────────────────────────────────────── */
+#gate {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 34px;
+  padding: 24px;
+  transition: opacity 0.5s ease;
+}
+#gate.gone { opacity: 0; pointer-events: none; }
+
+#gate-bg {
+  position: absolute;
+  inset: -6%;
+  z-index: 0;
+  background: url('assets/info/bug-thoughts-blur.png') center / cover no-repeat;
+  animation: gate-drift 40s ease-in-out infinite alternate;
+}
+@keyframes gate-drift {
+  0%   { transform: scale(1.04) translate(-1%, -1%); }
+  100% { transform: scale(1.12) translate(1%, 1%); }
+}
+
+#gate-art {
+  position: relative;
+  z-index: 1;
+  width: min(880px, 88vw);
+  max-height: 62vh;
+  object-fit: contain;
+  display: block;
+}
+
+/* ── yes / no ─────────────────────────────────────────────── */
+#ask {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  gap: 46px;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+  pointer-events: none;
+}
+#ask.in { opacity: 1; transform: none; pointer-events: auto; }
+
+#ask button {
+  position: relative;
+  background: none;
+  border: 0;
+  padding: 6px 20px;
+  cursor: pointer;
+  font-family: var(--type-cn);
+  font-weight: 700;
+  font-size: 58px;
+  line-height: 1;
+  letter-spacing: -0.06em;
+  color: var(--blue);
+  /* The glow is the button's own light, not a panel behind it. Stacked
+     shadows at widening radii, following the original contact page. */
+  text-shadow:
+    0 0 10px rgba(255,255,255,1),
+    0 0 20px rgba(255,255,255,1),
+    0 0 30px rgba(255,255,255,1),
+    0 0 46px rgba(255,255,255,0.95),
+    0 0 74px rgba(255,255,255,0.85),
+    0 0 110px rgba(255,255,255,0.7),
+     2px  2px 4px rgba(255,255,255,1),
+    -2px -2px 4px rgba(255,255,255,1),
+     2px -2px 4px rgba(255,255,255,1),
+    -2px  2px 4px rgba(255,255,255,1);
+  transform: scale(1);
+  transition: color 0.14s ease, transform 0.2s cubic-bezier(0.3,1.5,0.5,1);
+}
+/* the one place on the site that goes WHITE rather than orange —
+   the glow is already white, so the word resolves into its own light */
+#ask button:hover { color: var(--white); transform: scale(1.09); }
+
+/* ── the sheet ────────────────────────────────────────────── */
+main {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 60px 46px 160px;
+  font-family: var(--type-cn);
+  color: var(--blue);
+  text-align: center;
+  text-transform: uppercase;
+  --ico-h: 66px;
+}
+
+.line {
+  font-weight: 400;
+  font-size: 30px;
+  line-height: 1.18;
+  letter-spacing: -0.05em;
+  max-width: 26ch;
+  margin: 0 auto;
+}
+.line a { color: inherit; }
+
+/* proportions taken from the original contact page: 18px gap,
+   centred as a fitted row, with the same stacked white drop-shadow */
+.icon-row {
+  margin-top: 48px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+}
+/* height is common, width follows each icon's own viewBox — the
+   lockup is wide and the other two are square, so a shared box
+   would squash them */
+.icon-row a {
+  display: block;
+  height: var(--ico-h);
+  filter:
+    drop-shadow(0 0 5px rgba(255,255,255,0.6))
+    drop-shadow(0 0 10px rgba(255,255,255,0.4))
+    drop-shadow( 1px  1px 2px rgba(255,255,255,0.5))
+    drop-shadow(-1px -1px 2px rgba(255,255,255,0.5));
+}
+/* Flat blue, no gradient pass — the gradient reads as noise at this
+   size, and these sit inside a white glow already. */
+.icon-row .shim {
+  width: 100%;
+  height: 100%;
+  background-image: none;
+  background-color: var(--blue);
+  animation: none;
+  transition: background-color 0.14s ease;
+}
+
+/* The ROW scales as one unit, so the zoom is identical wherever the
+   cursor is and nothing has to move out of anything's way. Scaling
+   the icons individually meant each grew by a different number of
+   pixels and shoved its neighbours around differently. */
+.icon-row { transform: scale(1); transition: transform 0.2s cubic-bezier(0.3,1.5,0.5,1); }
+.icon-row:hover { transform: scale(1.08); }
+
+/* only the one under the cursor takes the orange */
+.icon-row a:hover .shim { background-color: var(--orange); }
+
+.mark {
+  margin-top: 74px;
+  font-weight: 400;
+  font-size: 19px;
+  letter-spacing: -0.04em;
+  opacity: 0.6;
+}
+
+@media (max-width: 900px) {
+  #gate { gap: 24px; }
+  #ask { gap: 30px; }
+  #ask button { font-size: 40px; }
+  main { padding: 34px 16px 110px; }
+  .line { font-size: 21px; }
+  main { --ico-h: 44px; }
+  .icon-row { margin-top: 34px; gap: 6px; }
+  .mark { margin-top: 50px; font-size: 16px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #gate-bg { animation: none; }
+  #gate, #ask { transition: none; }
+}
+</style>
+</head>
+
+<body data-page="info">
+
+<svg id="noise" xmlns="http://www.w3.org/2000/svg">
+  <filter id="grain"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/>
+  <feColorMatrix type="saturate" values="0"/></filter>
+  <rect width="100%" height="100%" filter="url(#grain)"/>
+</svg>
+
+<div id="gate">
+  <div id="gate-bg"></div>
+  <img id="gate-art" src="assets/info/bug-thoughts-text.png" alt="">
+  <div id="ask">
+    <button id="yes">YES</button>
+    <button id="no">NO</button>
+  </div>
+</div>
+
+<div id="page">
+  <div id="chrome-mount"></div>
+  <main>
+    <div class="line">
+      Contact <a href="mailto:b.u.gymnasium@gmail.com">b.u.gymnasium@gmail.com</a>
+      for commissions, bookings, consultations, partnerships,
+      questions, motivations, errors, assessments.
+    </div>
+
+    <div class="icon-row">
+      <a href="mailto:b.u.gymnasium@gmail.com" aria-label="Email">
+        <i class="shim" style="--icon:url('assets/info/bug2.svg')"></i></a>
+      <a href="https://www.instagram.com/beautiful.unity.gymnasium/" target="_blank" rel="noopener" aria-label="Instagram">
+        <i class="shim" style="--icon:url('assets/info/cursor-cross.svg')"></i></a>
+      <a href="https://www.youtube.com/@beautiful.unity.gymnasium" target="_blank" rel="noopener" aria-label="YouTube">
+        <i class="shim" style="--icon:url('assets/info/orgone.svg')"></i></a>
+    </div>
+
+    <div class="mark">&copy; 2026 THE BEAUTIFUL UNITY GYMNASIUM</div>
+  </main>
+</div>
+
+<audio id="stream" preload="none"></audio>
+
+<script src="bug-chrome.js"></script>
+<script>
+(() => {
+  'use strict';
+
+  const gate = document.getElementById('gate');
+  const ask  = document.getElementById('ask');
+
+  /* the question arrives after the image has had a moment to land */
+  setTimeout(() => ask.classList.add('in'), 1800);
+
+  document.getElementById('no').addEventListener('click', () => {
+    window.location.href = 'index.html';
+  });
+
+  document.getElementById('yes').addEventListener('click', () => {
+    gate.classList.add('gone');
+    /* removed rather than hidden — the blurred ground is a large
+       image and there is no reason to keep it decoding underneath */
+    setTimeout(() => gate.remove(), 600);
+  });
+
+  /* Size each icon from its own viewBox. A masked element has no
+     intrinsic size, so without this the three would share one box and
+     the wide lockup would be squashed to match the small square ones.
+     Reading the file is more reliable than hardcoding measurements. */
+  document.querySelectorAll('.icon-row .shim').forEach(el => {
+    const m = /url\(['"]?([^'")]+)/.exec(el.style.getPropertyValue('--icon'));
+    if (!m) return;
+    fetch(m[1]).then(r => r.text()).then(t => {
+      const vb = /viewBox="([\d.\s-]+)"/.exec(t);
+      if (!vb) return;
+      const p = vb[1].trim().split(/\s+/).map(Number);
+      const ratio = p[2] / p[3];
+      el.parentElement.style.width = (ratio * parseFloat(
+        getComputedStyle(el.parentElement).height)) + 'px';
+    }).catch(() => {});
+  });
+
+  /* a keyboard answer, since the buttons are the only way through */
+  document.addEventListener('keydown', e => {
+    if (!document.getElementById('gate')) return;
+    if (e.key === 'y' || e.key === 'Y' || e.key === 'Enter')
+      document.getElementById('yes').click();
+    if (e.key === 'n' || e.key === 'N' || e.key === 'Escape')
+      document.getElementById('no').click();
+  });
+})();
+</script>
+
+</body>
+</html>

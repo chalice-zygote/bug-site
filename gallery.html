@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GALLERY — BEAUTIFUL UNITY GYMNASIUM</title>
+<link rel="icon" href="assets/OFF-fav.svg" type="image/svg+xml">
+<link rel="stylesheet" href="bug.css">
+
+<style>
+/* ── GALLERY ──────────────────────────────────────────────
+   One page, zoned by program. Each zone carries a header and
+   an anchor, so a line on program.html can jump straight to
+   its own images.
+   ─────────────────────────────────────────────────────────── */
+#noise {
+  position: fixed; inset: 0;
+  z-index: 0; pointer-events: none;
+  opacity: 0.055; mix-blend-mode: multiply;
+}
+#page { position: relative; z-index: 1; }
+
+main {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 24px 46px 160px;
+  font-family: var(--type-cn);
+  color: var(--blue);
+  --entry-lh: 1.06;
+}
+
+/* jumped-to zones must clear the header rather than hide under it */
+.zone { scroll-margin-top: 24px; padding-top: 4px; }
+.zone + .zone { margin-top: 74px; }
+
+.zone-head {
+  display: flex;
+  align-items: baseline;
+  gap: 13px;
+  flex-wrap: wrap;
+  padding-bottom: 8px;
+  margin-bottom: 18px;
+  border-bottom: 3px solid var(--blue);
+}
+.zone-head h2 {
+  font-weight: 700;
+  font-size: 34px;
+  line-height: var(--entry-lh);
+  letter-spacing: -0.06em;
+}
+.zone-head .cat,
+.zone-head .date {
+  font-weight: 400;
+  font-size: 19px;
+  line-height: var(--entry-lh);
+  letter-spacing: -0.04em;
+}
+.zone-head .date { margin-left: auto; }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(258px, 1fr));
+  gap: 16px;
+}
+
+figure { margin: 0; position: relative; }
+figure img { cursor: zoom-in; }
+figure img,
+figure video {
+  width: 100%;
+  display: block;
+  background: rgba(4,0,255,0.04);
+}
+
+/* ── VIDEO ────────────────────────────────────────────────
+   Boots muted so autoplay is permitted — no browser will start
+   audio unmuted — and carries the same mute control the stream
+   bar uses, so the gesture is the same everywhere on the site.
+   ─────────────────────────────────────────────────────────── */
+figure.vid { cursor: pointer; }
+figure video { cursor: zoom-in; }
+.vid-mute {
+  position: absolute;
+  right: 7px; bottom: 7px;
+  width: 34px; height: 34px;
+  background: var(--orange);
+  border: 0;
+  padding: 5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: scale(1);
+  transition: transform 0.2s cubic-bezier(0.3,1.5,0.5,1);
+}
+.vid-mute:hover { transform: scale(1.09); }
+.vid-mute img { width: 100%; height: 100%; display: block; }
+
+/* PROM / ARCV tag */
+.tag {
+  position: absolute;
+  top: 7px; left: 7px;
+  font-weight: 700;
+  font-size: 15px;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--white);
+  background: var(--blue);
+  padding: 4px 5px 5px;
+}
+.tag.prom { background: var(--orange); }
+
+figcaption {
+  margin-top: 5px;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: var(--entry-lh);
+  letter-spacing: -0.04em;
+  opacity: 0.72;
+}
+
+.empty {
+  font-weight: 400;
+  font-size: 19px;
+  line-height: var(--entry-lh);
+  letter-spacing: -0.04em;
+  opacity: 0.55;
+  padding: 4px 0 2px;
+}
+
+.back {
+  margin-bottom: 26px;
+  font-weight: 400;
+  font-size: 19px;
+  letter-spacing: -0.04em;
+}
+
+/* ── LIGHTBOX ─────────────────────────────────────────────
+   Full-size view. Only the image is loaded at full resolution
+   here — the grid keeps its thumbnails — so opening one costs
+   a single request rather than the whole zone.
+   ─────────────────────────────────────────────────────────── */
+#lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: rgba(255,255,255,0.94);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  cursor: zoom-out;
+}
+#lightbox.open { display: flex; }
+#lightbox #lb-img {
+  max-width: 94vw;
+  max-height: 88vh;
+  display: block;
+  object-fit: contain;
+  cursor: zoom-out;
+}
+#lb-vidwrap { position: relative; display: none; }
+#lb-vidwrap.on { display: block; }
+#lb-vidwrap video {
+  max-width: 94vw;
+  max-height: 88vh;
+  display: block;
+}
+#lb-vidmute { right: 10px; bottom: 10px; }
+
+#lb-meta {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  padding: 12px 18px;
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  font-family: var(--type-cn);
+  font-weight: 400;
+  font-size: 18px;
+  letter-spacing: -0.04em;
+  color: var(--blue);
+  pointer-events: none;
+}
+#lb-meta .n { margin-left: auto; }
+
+/* prev / next / close share one look */
+.lb-btn {
+  position: absolute;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  font-family: var(--type-cn);
+  font-weight: 700;
+  font-size: 40px;
+  line-height: 1;
+  color: var(--blue);
+  transition: color 0.14s ease, transform 0.2s cubic-bezier(0.3,1.5,0.5,1);
+}
+.lb-btn:hover { color: var(--orange); transform: scale(1.12); }
+#lb-prev  { left: 16px;  top: 50%; transform: translateY(-50%); }
+#lb-next  { right: 16px; top: 50%; transform: translateY(-50%); }
+#lb-prev:hover { transform: translateY(-50%) scale(1.12); }
+#lb-next:hover { transform: translateY(-50%) scale(1.12); }
+#lb-close { right: 18px; top: 12px; font-size: 30px; }
+
+body.lb-open { overflow: hidden; }
+
+@media (max-width: 900px) {
+  main { padding: 14px 16px 110px; }
+  .lb-btn { font-size: 30px; }
+  #lb-meta { font-size: 14px; padding: 9px 12px; }
+  .zone + .zone { margin-top: 48px; }
+  .zone-head h2 { font-size: 24px; }
+  .zone-head .cat, .zone-head .date { font-size: 15px; }
+  .zone-head .date { margin-left: 0; }
+  .grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+  .tag { font-size: 12px; }
+  figcaption { font-size: 14px; }
+}
+</style>
+</head>
+
+<body data-page="program">
+
+<svg id="noise" xmlns="http://www.w3.org/2000/svg">
+  <filter id="grain">
+    <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/>
+    <feColorMatrix type="saturate" values="0"/>
+  </filter>
+  <rect width="100%" height="100%" filter="url(#grain)"/>
+</svg>
+
+<div id="page">
+  <div id="chrome-mount"></div>
+  <main>
+    <a class="lb back" href="program.html">&larr; PROGRAM REGISTER</a>
+    <div id="zones"></div>
+  </main>
+</div>
+
+<div id="lightbox" role="dialog" aria-modal="true" aria-label="Full size">
+  <img id="lb-img" src="" alt="">
+  <div id="lb-vidwrap">
+    <video id="lb-video" loop playsinline muted></video>
+    <button class="vid-mute" id="lb-vidmute" aria-label="Unmute" aria-pressed="false">
+      <img src="assets/OFF.svg" alt="">
+    </button>
+  </div>
+  <div id="lb-meta">
+    <span id="lb-kind"></span>
+    <span id="lb-prog"></span>
+    <span class="n" id="lb-n"></span>
+  </div>
+  <button class="lb-btn" id="lb-prev" aria-label="Previous">&larr;</button>
+  <button class="lb-btn" id="lb-next" aria-label="Next">&rarr;</button>
+  <button class="lb-btn" id="lb-close" aria-label="Close">&times;</button>
+</div>
+
+<audio id="stream" preload="none"></audio>
+
+<script src="programs.js"></script>
+<script src="bug-chrome.js"></script>
+<script>
+(() => {
+  'use strict';
+
+  const all = (window.PROGRAMS || [])
+    .slice()
+    .sort((a, b) => b.sort.localeCompare(a.sort));
+
+  const strip = t => t.replace(/<[^>]+>/g, '');
+
+  const zone = p => {
+    const media = p.media || [];
+    const items = media.length
+      ? `<div class="grid">${media.map(m => m.video ? `
+          <figure class="vid">
+            <video src="${m.video}" muted loop playsinline preload="none"
+                   onerror="this.closest('figure').remove()"></video>
+            <span class="tag">${m.kind}</span>
+            <button class="vid-mute" aria-label="Unmute" aria-pressed="false">
+              <img src="assets/OFF.svg" alt="">
+            </button>
+            ${m.cap ? `<figcaption>${m.cap}</figcaption>` : ''}
+          </figure>` : `
+          <figure>
+            <img src="${m.src}" alt="${strip(p.title)} ${m.kind}" loading="lazy"
+                 data-kind="${m.kind}" data-prog="${strip(p.title)}"
+                 onerror="this.closest('figure').remove()">
+            <span class="tag ${m.kind === 'PROM' ? 'prom' : ''}">${m.kind}</span>
+            ${m.cap ? `<figcaption>${m.cap}</figcaption>` : ''}
+          </figure>`).join('')}</div>`
+      : `<div class="empty">NO MATERIAL FILED.</div>`;
+
+    return `
+      <section class="zone" id="${p.slug}">
+        <div class="zone-head">
+          <h2>${p.title}</h2>
+          <span class="cat">${p.cat}</span>
+          <span class="date">${p.date}</span>
+        </div>
+        ${items}
+      </section>`;
+  };
+
+  document.getElementById('zones').innerHTML = all.map(zone).join('');
+
+  /* ── video ──────────────────────────────────────────────
+     preload="none" so a gallery visit doesn't pull down every
+     patch before anyone presses play. Each starts only when it
+     scrolls into view, and pauses when it leaves — several
+     1080x1920 decodes running at once will stall a phone.
+     ─────────────────────────────────────────────────────── */
+  const vids = [...document.querySelectorAll('figure.vid video')];
+
+  if (vids.length && 'IntersectionObserver' in window) {
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        const v = e.target;
+        if (e.isIntersecting) { v.preload = 'auto'; v.play().catch(() => {}); }
+        else v.pause();
+      });
+    }, { rootMargin: '200px 0px', threshold: 0.25 });
+    vids.forEach(v => io.observe(v));
+  } else {
+    vids.forEach(v => { v.preload = 'auto'; v.play().catch(() => {}); });
+  }
+
+  document.querySelectorAll('.vid-mute').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const v = btn.closest('figure').querySelector('video');
+      v.muted = !v.muted;
+      if (!v.muted) {
+        // only one audible at a time
+        vids.forEach(o => { if (o !== v) o.muted = true; });
+        document.querySelectorAll('.vid-mute img')
+          .forEach(i => { i.src = 'assets/OFF.svg'; });
+        v.play().catch(() => {});
+      }
+      btn.querySelector('img').src = v.muted ? 'assets/OFF.svg' : 'assets/ON.svg';
+      btn.setAttribute('aria-pressed', String(!v.muted));
+      btn.setAttribute('aria-label', v.muted ? 'Unmute' : 'Mute');
+    });
+  });
+
+  /* ── lightbox ───────────────────────────────────────────
+     One flat list across every zone, so arrows walk the whole
+     gallery rather than stopping at a zone boundary. Videos are
+     skipped — they play in place and have their own control.
+     ─────────────────────────────────────────────────────── */
+  /* every figure, stills and patches alike — arrowing through the
+     gallery shouldn't skip the videos */
+  /* A figure whose file is missing removes itself (see onerror), so
+     the list is built after a tick — otherwise it would hold entries
+     for tiles that are about to vanish, and the lightbox would step
+     onto blanks. Zones left with nothing say so. */
+  window.addEventListener('load', () => {
+    document.querySelectorAll('.zone').forEach(z => {
+      const grid = z.querySelector('.grid');
+      if (grid && !grid.children.length) {
+        grid.outerHTML = '<div class="empty">NO MATERIAL FILED.</div>';
+      }
+    });
+  });
+
+  const shots = [...document.querySelectorAll('figure')].map(f => {
+    const v = f.querySelector('video');
+    const i = f.querySelector('figure > img');
+    return v
+      ? { video: v.src, kind: f.querySelector('.tag').textContent,
+          prog: v.closest('.zone').querySelector('h2').textContent }
+      : { src: i.src, kind: i.dataset.kind, prog: i.dataset.prog, alt: i.alt };
+  });
+  const lb    = document.getElementById('lightbox');
+  const lbImg = document.getElementById('lb-img');
+  let at = -1;
+
+  const lbVid  = document.getElementById('lb-video');
+  const lbWrap = document.getElementById('lb-vidwrap');
+
+  function show(i) {
+    if (i < 0 || i >= shots.length) return;
+    at = i;
+    const el = shots[i];
+
+    if (el.video) {
+      lbImg.style.display = 'none';
+      lbWrap.classList.add('on');
+      if (lbVid.src !== el.video) lbVid.src = el.video;
+      lbVid.muted = true;
+      setVidMute();
+      lbVid.play().catch(() => {});
+    } else {
+      lbWrap.classList.remove('on');
+      lbVid.pause();
+      lbImg.style.display = 'block';
+      lbImg.src = el.src;
+      lbImg.alt = el.alt || '';
+    }
+
+    document.getElementById('lb-kind').textContent = el.kind || '';
+    document.getElementById('lb-prog').textContent = el.prog || '';
+    document.getElementById('lb-n').textContent = (i + 1) + ' / ' + shots.length;
+    lb.classList.add('open');
+    document.body.classList.add('lb-open');
+
+    // warm the neighbouring stills so arrowing doesn't flash
+    [i - 1, i + 1].forEach(j => {
+      if (shots[j] && shots[j].src) { const im = new Image(); im.src = shots[j].src; }
+    });
+  }
+
+  function setVidMute() {
+    const b = document.getElementById('lb-vidmute');
+    b.querySelector('img').src = lbVid.muted ? 'assets/OFF.svg' : 'assets/ON.svg';
+    b.setAttribute('aria-pressed', String(!lbVid.muted));
+    b.setAttribute('aria-label', lbVid.muted ? 'Unmute' : 'Mute');
+  }
+
+  document.getElementById('lb-vidmute').addEventListener('click', e => {
+    e.stopPropagation();
+    lbVid.muted = !lbVid.muted;
+    if (!lbVid.muted) {
+      vids.forEach(o => { o.muted = true; });   // hush the grid
+      document.querySelectorAll('figure .vid-mute img')
+        .forEach(im => { im.src = 'assets/OFF.svg'; });
+      lbVid.play().catch(() => {});
+    }
+    setVidMute();
+  });
+
+  // autoplay means there is nothing to interact with — click toggles
+  lbVid.style.cursor = 'zoom-out';
+
+  function close() {
+    lb.classList.remove('open');
+    document.body.classList.remove('lb-open');
+    lbVid.pause();
+    lbWrap.classList.remove('on');
+    lbImg.src = '';
+  }
+
+  [...document.querySelectorAll('figure')].forEach((f, i) => {
+    const target = f.querySelector('video') || f.querySelector('img');
+    target.addEventListener('click', e => {
+      if (e.target.closest('.vid-mute')) return;   // the grid's own control
+      show(i);
+    });
+  });
+
+  document.getElementById('lb-prev').addEventListener('click', e => {
+    e.stopPropagation(); show((at - 1 + shots.length) % shots.length);
+  });
+  document.getElementById('lb-next').addEventListener('click', e => {
+    e.stopPropagation(); show((at + 1) % shots.length);
+  });
+  document.getElementById('lb-close').addEventListener('click', e => {
+    e.stopPropagation(); close();
+  });
+  /* clicking anywhere closes — including the image itself, which is
+     what the zoom-out cursor promises. The arrows and close button
+     stopPropagation so they don't close before they act. */
+  lb.addEventListener('click', close);
+
+  document.addEventListener('keydown', e => {
+    if (!lb.classList.contains('open')) return;
+    if (e.key === 'Escape')     close();
+    if (e.key === 'ArrowLeft')  show((at - 1 + shots.length) % shots.length);
+    if (e.key === 'ArrowRight') show((at + 1) % shots.length);
+  });
+
+  /* Arriving with a #hash: the header is injected by bug-chrome.js
+     after parse, which shifts the page — so the browser's own jump
+     lands in the wrong place. Re-run it once layout has settled. */
+  if (location.hash) {
+    const target = document.getElementById(location.hash.slice(1));
+    if (target) requestAnimationFrame(() =>
+      target.scrollIntoView({ block: 'start' }));
+  }
+})();
+</script>
+
+</body>
+</html>
