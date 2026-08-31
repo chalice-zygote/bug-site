@@ -39,7 +39,15 @@
   }
 
   /* purpose-made ground image, falling back to the cover if absent */
-  document.getElementById('ground').style.backgroundImage = `url("${r.bg || r.cover}")`;
+  /* A CSS background cannot use srcset, so the choice is made here.
+     The ground is a blurred, full-bleed backdrop — nobody inspects
+     it, and on a phone the master is several megabytes for something
+     scaled past recognition. */
+  const groundSrc = r.bg || r.cover;
+  const groundPick = window.matchMedia('(max-width: 900px)').matches
+    ? groundSrc.replace(/\.([^.\/]+)$/, '-900.$1')
+    : groundSrc;
+  document.getElementById('ground').style.backgroundImage = `url("${groundPick}")`;
 
   /* ═══════════════════════════════════════════════════════
      SPINE — colours sampled from the artwork

@@ -399,6 +399,14 @@ body {
   visibility: hidden;
   overflow-y: auto;
 }
+
+/* The drawer ground is decorative and heavily cropped, so the small
+   copy is indistinguishable here — and a CSS background cannot use
+   srcset, which is why this is a media query rather than markup. */
+@media (max-width: 900px) {
+  #menu { background-image: url('assets/oranger-burger-bg-900.png'); }
+}
+
 #menu.open { transform: translateX(0); visibility: visible; }
 
 #menu a {

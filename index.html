@@ -514,7 +514,12 @@ body.flag-hover { cursor: pointer; }
   let flagIndex = 0;
   let elA = document.getElementById('flag-a');
   let elB = document.getElementById('flag-b');
-  const src = name => `assets/flags/${name}${EXT}`;
+  /* Narrow viewports get the 720x1280 encode. A phone shows these
+     at about a third of full size, so the master is roughly nine
+     times the pixels it can display — on the slowest connection.
+     Desktop is untouched. */
+  const SM = window.matchMedia('(max-width: 900px)').matches ? '-sm' : '';
+  const src = name => `assets/flags/${name}${SM}${EXT}`;
 
   /* On a phone the second video competes with the first for a much
      smaller pipe, which is why some flags arrive noticeably later
@@ -650,7 +655,12 @@ body.flag-hover { cursor: pointer; }
        audible — otherwise the first unlock is silent */
     master.gain.value = sfxOn ? 1 : 0;
     master.connect(ctx.destination);
-    [SFX.shot, ...SFX.arps].forEach(load);
+    /* Only the one-shot is fetched up front. Decoding all five WAVs
+       here is ~22MB of work on the first click, which on a phone is
+       a visible stall on the mute button. The arps are pulled when
+       the strobe is first armed — by which point the tap has already
+       been acknowledged. */
+    load(SFX.shot);
   }
 
   /* each entry is a PROMISE for a decoded buffer, so a play that
@@ -671,6 +681,12 @@ body.flag-hover { cursor: pointer; }
   document.addEventListener('pointerdown', () => {
     boot();
     if (ctx.state === 'suspended') ctx.resume();
+
+    /* fetch the arps when the browser is otherwise idle — ready for
+       the first arm without competing with anything visible */
+    const warm = () => SFX.arps.forEach(load);
+    if ('requestIdleCallback' in window) requestIdleCallback(warm, { timeout: 4000 });
+    else setTimeout(warm, 2500);
   }, true);
 
   /* a loop started before its buffer arrived must still be
@@ -760,7 +776,7 @@ body.flag-hover { cursor: pointer; }
     }
 
     if (armed) {
-      if (!flash.src) flash.src = 'assets/meme-strobe-2.mp4';
+      if (!flash.src) flash.src = 'assets/meme-strobe-2' + SM + '.mp4';
       flash.preload = 'auto';
       flash.play().catch(() => {});
     } else {

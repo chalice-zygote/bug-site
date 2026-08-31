@@ -41,6 +41,7 @@
   inset: -6%;
   z-index: 0;
   background: url('assets/info/bug-thoughts-blur.png') center / cover no-repeat;
+  background-size: cover;
   animation: gate-drift 40s ease-in-out infinite alternate;
 }
 @keyframes gate-drift {
@@ -178,6 +179,9 @@ main {
 }
 
 @media (max-width: 900px) {
+  /* the ground is blurred past recognition — the small copy reads
+     identically and saves several megabytes on a phone */
+  #gate-bg { background-image: url('assets/info/bug-thoughts-blur-900.png'); }
   #gate { gap: 24px; }
   #ask { gap: 30px; }
   #ask button { font-size: 40px; }
