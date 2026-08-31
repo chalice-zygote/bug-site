@@ -60,16 +60,28 @@ encode_alpha() {                    # $1 = source stem (no extension)
   # The decoder flag and format filter below are belt-and-braces:
   # they cost nothing and guarantee the chain never flattens alpha,
   # but the container tag is what actually matters.
+  #
+  # ── on the white fringe ────────────────────────────────
+  # These renders carry PREMULTIPLIED alpha: transparent pixels
+  # still hold white RGB, which the full-size alpha channel hides.
+  # Scaling averages neighbouring pixels, so that white bleeds into
+  # every semi-transparent edge — a halo that appears only in the
+  # downsized copies.
+  #
+  # unpremultiply before the scale and premultiply after means the
+  # averaging happens on true colour rather than on white-matted
+  # colour. format=yuva444p first so the un/premultiply work at full
+  # chroma resolution rather than on already-subsampled data.
 
   ffmpeg -y -v error -c:v libvpx-vp9 -i "$src" \
-    -vf "scale=${W}:${H},format=yuva420p" \
+    -vf "format=yuva444p,unpremultiply=inplace=1,scale=${W}:${H}:flags=lanczos,premultiply=inplace=1,format=yuva420p" \
     -c:v libvpx-vp9 -pix_fmt yuva420p \
     -auto-alt-ref 0 -crf 36 -b:v 0 \
     -row-mt 1 -threads 8 -deadline good -cpu-used 4 \
     -an "${stem}-sm.webm" && echo "  ok ${stem}-sm.webm"
 
   ffmpeg -y -v error -c:v libvpx-vp9 -i "$src" \
-    -vf "scale=${W}:${H},format=yuva420p" \
+    -vf "format=yuva444p,unpremultiply=inplace=1,scale=${W}:${H}:flags=lanczos,premultiply=inplace=1,format=yuva420p" \
     -c:v hevc_videotoolbox -alpha_quality 0.7 \
     -b:v 900k -maxrate 1200k -bufsize 2400k \
     -allow_sw 1 -tag:v hvc1 \
