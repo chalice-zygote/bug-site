@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>THE BEAUTIFUL UNITY GYMNASIUM</title>
 <link rel="icon" href="assets/off-fav.svg" type="image/svg+xml">
+<link rel="preload" href="assets/fonts/heros-cn-bold.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/heros-cn-regular.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="bug.css">
 
 <style>
@@ -345,9 +347,10 @@ body.flag-hover { cursor: pointer; }
      whatever transparent margin the render happens to carry. */
   :root {
     --flag-top-target: 0px;
-    --ticker-y: 1200px;
-    --drive-y: 1560px;
-    --icon-h: 122px;
+    --ticker-y: 1060px;
+    --drive-y: 1260px;
+    --icon-h: 104px;
+    --lockup-w: 300px;
 
     /* the flag ran edge to edge on a phone — pulled in so it has
        margins either side, height kept in proportion */
@@ -357,7 +360,7 @@ body.flag-hover { cursor: pointer; }
   #dock { gap: 30px; }
 
   .lbl { font-size: 26px; }
-  .lockup-slot { top: 34%; }
+  .lockup-slot { top: 24%; }
   #ticker-track span { font-size: 104px; }
 }
 
@@ -513,8 +516,18 @@ body.flag-hover { cursor: pointer; }
   let elB = document.getElementById('flag-b');
   const src = name => `assets/flags/${name}${EXT}`;
 
+  /* On a phone the second video competes with the first for a much
+     smaller pipe, which is why some flags arrive noticeably later
+     than others. Narrow viewports load one and fetch the next only
+     once the first is playable. */
+  const NARROW = window.matchMedia('(max-width: 900px)').matches;
+
   elA.src = src(FLAGS[0]);
-  elB.src = src(FLAGS[1]);
+  if (NARROW) {
+    elA.addEventListener('canplay', () => { elB.src = src(FLAGS[1]); }, { once: true });
+  } else {
+    elB.src = src(FLAGS[1]);
+  }
 
   const hitCanvas = document.createElement('canvas');
   hitCanvas.width = 96;
