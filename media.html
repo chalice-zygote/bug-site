@@ -248,8 +248,10 @@ main {
           <video src="${o.thumbVideo}${VEXT}" autoplay loop muted playsinline></video>
         </div>`
         : o.thumb ? `<div class="plate${o.inset ? ' inset' : ''}"${o.pos ? ` style="--pos:${o.pos}"` : ''}>
-          <img class="base" src="${o.thumb}" alt="" loading="lazy">
-          ${o.thumbAlt ? `<img class="alt" src="${o.thumbAlt}" alt="" loading="lazy">` : ''}
+          <img class="base" src="${o.thumb}" srcset="${bugSrcset(o.thumb)}"
+               sizes="(max-width: 900px) 100vw, 390px" alt="" loading="lazy" decoding="async">
+          ${o.thumbAlt ? `<img class="alt" src="${o.thumbAlt}" srcset="${bugSrcset(o.thumbAlt)}"
+               sizes="(max-width: 900px) 100vw, 390px" alt="" loading="lazy" decoding="async">` : ''}
         </div>` : ''}
         <div class="n">${o.catDisp}</div>
         <div class="t">${o.title}</div>

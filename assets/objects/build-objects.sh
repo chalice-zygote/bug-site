@@ -26,7 +26,10 @@ for d in */; do
     -print0 |
   while IFS= read -r -d '' f; do
     base="$(basename "$f")"
-    case "$base" in .*) continue ;; esac
+    case "$base" in
+      .*)      continue ;;
+      *-900.*) continue ;;   # responsive variant, not a separate image
+    esac
     pad="$(printf '%s' "$f" | sed -E 's/([0-9]+)/00000\1/g; s/0*([0-9]{5})/\1/g')"
     printf '%s|assets/objects/%s\n' "$pad" "$f" >> "$WORK/$d"
   done

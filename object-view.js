@@ -29,12 +29,15 @@
   const lead = o.thumbAlt || o.thumb || shots[0] || '';
 
   document.getElementById('shots').innerHTML = shots
-    .map((src, i) => `<img src="${src}" alt="${o.slug} ${i + 1}" loading="lazy">`)
+    .map((src, i) => `<img src="${src}" srcset="${bugSrcset(src)}"
+         sizes="(max-width: 900px) 100vw, 50vw"
+         alt="${o.slug} ${i + 1}" loading="lazy" decoding="async">`)
     .join('');
 
   document.getElementById('record').innerHTML = `
     <span class="title-block">${o.title}</span>
-    ${lead ? `<img class="lead" src="${lead}" alt="">` : ''}
+    ${lead ? `<img class="lead" src="${lead}" srcset="${bugSrcset(lead)}"
+         sizes="(max-width: 900px) 100vw, 46vw" alt="" decoding="async">` : ''}
     <div class="no">${o.catDisp}${o.meta ? ' &middot; ' + o.meta : ''}</div>
     ${(o.note && o.note.length) ? `<div class="note">${
         (Array.isArray(o.note) ? o.note : [o.note])

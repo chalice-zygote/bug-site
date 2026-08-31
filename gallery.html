@@ -287,7 +287,9 @@ body.lb-open { overflow: hidden; }
             ${m.cap ? `<figcaption>${m.cap}</figcaption>` : ''}
           </figure>` : `
           <figure>
-            <img src="${m.src}" alt="${strip(p.title)} ${m.kind}" loading="lazy"
+            <img src="${m.src}" srcset="${bugSrcset(m.src)}"
+                 sizes="(max-width: 900px) 50vw, 258px"
+                 alt="${strip(p.title)} ${m.kind}" loading="lazy" decoding="async"
                  data-kind="${m.kind}" data-prog="${strip(p.title)}"
                  onerror="this.closest('figure').remove()">
             <span class="tag ${m.kind === 'PROM' ? 'prom' : ''}">${m.kind}</span>

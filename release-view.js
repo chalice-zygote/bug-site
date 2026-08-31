@@ -165,14 +165,17 @@
       }
     };
     img.onerror = () => console.warn('[spine] image failed to load:', srcUrl);
-    img.src = srcUrl;
+    /* sample the 900px variant, not the master — this runs on every
+       page load and a full-size cover can be several megabytes */
+    img.src = srcUrl.replace(/\.([^.\/]+)$/, '-900.$1');
   }
 
   buildSpine(r.cover);
 
   document.getElementById('plates').innerHTML =
     (r.plates || []).map((p, i) =>
-      `<img src="${p}" alt="${r.title} documentation ${i + 1}" loading="lazy">`
+      `<img src="${p}" srcset="${bugSrcset(p)}" sizes="(max-width: 900px) 100vw, 50vw"
+            alt="${r.title} documentation ${i + 1}" loading="lazy" decoding="async">`
     ).join('');
 
   const tracks = (r.tracks || []).length
@@ -183,7 +186,10 @@
 
   document.getElementById('record').innerHTML = `
     <span class="title-block">${r.artist} - ${r.title}</span>
-    <img class="cover" src="${r.rightTop || r.cover}" alt="${r.artist} — ${r.title}">
+    <img class="cover" src="${r.rightTop || r.cover}"
+         srcset="${bugSrcset(r.rightTop || r.cover)}"
+         sizes="(max-width: 900px) 100vw, 46vw"
+         alt="${r.artist} — ${r.title}" decoding="async">
 
     <div class="type-panel">
       <div class="credits">${(r.credits || [])
@@ -213,7 +219,9 @@
 
     <img class="lockup" src="assets/logo-lockup.svg" alt="Artworks produced by the B.U.G.">
     ${(r.rightPlates || []).map((p) =>
-        `<img class="sleeve" src="${p}" alt="${r.title} documentation" loading="lazy">`
+        `<img class="sleeve" src="${p}" srcset="${bugSrcset(p)}"
+              sizes="(max-width: 900px) 100vw, 46vw"
+              alt="${r.title} documentation" loading="lazy" decoding="async">`
       ).join('')}
   `;
 })();

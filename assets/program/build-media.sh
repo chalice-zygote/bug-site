@@ -48,7 +48,10 @@ find . -type f \
 while IFS= read -r -d '' f; do
   rel="${f#./}"
   base="$(basename "$rel")"
-  case "$base" in .*) continue ;; esac
+  case "$base" in
+    .*)      continue ;;
+    *-900.*) continue ;;   # responsive variant, not a separate image
+  esac
 
   top="${rel%%/*}"
   lowtop="$(printf '%s' "$top" | tr '[:upper:]' '[:lower:]')"
