@@ -113,11 +113,16 @@ main {
 }
 
 @media (max-width: 900px) {
-  :root { --plate: 560px; --rule: 2px; }
+  /* the plate was a fixed 560px — wider than most phones, so the
+     title bar ran off the right edge with no way to see it */
+  :root { --plate: min(560px, 88vw); --rule: 2px; }
   main { gap: 88px; padding: 14px 0 110px; }
   .rail { font-size: 17px; }
-  .title-block { font-size: 38px; }
   .meta { font-size: 18px; }
+
+  /* nowrap keeps the block a single bar, so the type has to come
+     down far enough for the longest title to fit the plate */
+  .title-block { font-size: 26px; }
 }
 </style>
 </head>
