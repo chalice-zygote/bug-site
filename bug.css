@@ -453,16 +453,38 @@ body {
   align-items: center;
   justify-content: flex-start;
   gap: 14px;
+  /* the row has a fixed left edge and a hard right one — both
+     children must be allowed to give, or the badge runs past the
+     drawer on a narrow screen */
+  min-width: 0;
 }
 #menu .menu-mark {
+  flex: 0 0 auto;
   font-family: var(--type-cn);
   font-weight: 400;
   font-size: 30px;
   line-height: 0.86;
   letter-spacing: -0.06em;
   color: var(--ink);
+  white-space: nowrap;
 }
-#menu .rated { height: 40px; width: auto; display: block; }
+#menu .rated {
+  flex: 0 1 auto;
+  min-width: 0;
+  height: 40px;
+  max-width: 100%;
+  width: auto;
+  object-fit: contain;
+  object-position: left center;
+  display: block;
+}
+
+/* a narrower drawer needs both smaller */
+@media (max-width: 900px) {
+  #menu .menu-foot { gap: 10px; padding: 7px 18px 22px; }
+  #menu .menu-mark { font-size: 24px; }
+  #menu .rated { height: 32px; }
+}
 #menu .menu-mark .dot2 { font-style: normal; margin-left: -0.09em; margin-right: -0.09em; }
 
 #menu-close {
