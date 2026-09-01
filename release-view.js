@@ -31,7 +31,7 @@
 
   document.title = `${r.artist} — ${r.title} — BEAUTIFUL UNITY GYMNASIUM`;
 
-  /* dark grounds get a white panel rather than a colour change */
+  /* dark grounds get a white panel rather than a color change */
   if (r.ink)   document.getElementById('record').style.setProperty('--record-ink', r.ink);
   if (r.panel) {
     document.getElementById('record').classList.add('has-panel');
@@ -50,7 +50,7 @@
   document.getElementById('ground').style.backgroundImage = `url("${groundPick}")`;
 
   /* ═══════════════════════════════════════════════════════
-     SPINE — colours sampled from the artwork
+     SPINE — colors sampled from the artwork
 
      Rather than hand-authoring a palette per release, the cover
      is drawn to a small canvas and its pixels bucketed into a
@@ -59,7 +59,7 @@
      in near the middle as the single pop.
 
      Extracting rather than authoring means every future record
-     gets its spine for free, and the colours can never drift out
+     gets its spine for free, and the colors can never drift out
      of sync with the artwork.
      ═══════════════════════════════════════════════════════ */
   const SPINE_STOPS = 26;
@@ -94,7 +94,7 @@
 
     /* ── CURATED OVERRIDE ──────────────────────────────────
        If the record carries a `spine` array in releases.js, those
-       colours are used verbatim and nothing is sampled. Extraction
+       colors are used verbatim and nothing is sampled. Extraction
        is the fallback for records not yet curated.
 
        To curate one: load the page, copy the hex array logged to the
@@ -137,7 +137,7 @@
 
         /* Ranking by frequency alone surfaces the muted mid-tones that
            dominate any blurred image. Weighting by saturation pulls the
-           colours the artwork is actually ABOUT to the front. */
+           colors the artwork is actually ABOUT to the front. */
         const scored = all
           .map(o => ({ ...o, score: o.n * (0.18 + Math.pow(sat(o.c), 1.6) * 3.2) }))
           .sort((a, b) => b.score - a.score)

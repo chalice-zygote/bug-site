@@ -6,7 +6,7 @@
 
    Adding a release means adding one object here — nothing else.
 
-   SPINE COLOURS
+   SPINE COLORS
      By default the spine is sampled from `cover`. Two ways to take
      control, in increasing order of authority:
        spineBoost: 1.25   nudge saturation for this record only
@@ -66,7 +66,7 @@ window.RELEASES = [
     ],
 
     /* The ground on this record is too dark for the house blue, so the
-       text sits on a white panel instead of changing colour — the blue
+       text sits on a white panel instead of changing color — the blue
        is the institution's, the ground is the record's. */
     panel: 'rgba(255,255,255,0.69)',
 

@@ -115,8 +115,8 @@ main {
      Built from the same registries the pages render from, so a
      record cannot exist on the site and be missing from search.
      Every field a person might reach for goes into the haystack:
-     catalogue numbers, artists, titles, formats, dates, venues,
-     cities, personnel, tracklists, credits, materials, colours.
+     catalog numbers, artists, titles, formats, dates, venues,
+     cities, personnel, tracklists, credits, materials, colors.
      ═══════════════════════════════════════════════════════ */
   const IDX = [];
   const add = (group, o) => IDX.push({
@@ -202,7 +202,7 @@ main {
   }).join('') + termsNote();
 
   function termsNote() {
-    return '<div class="terms">Searches catalogue numbers, artists, titles, formats, ' +
+    return '<div class="terms">Searches catalog numbers, artists, titles, formats, ' +
            'dates, venues, cities, personnel, tracklists, credits and materials. ' +
            'All terms must appear; order does not matter.</div>';
   }

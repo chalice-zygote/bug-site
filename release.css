@@ -69,7 +69,7 @@ body { overflow: hidden; }          /* the columns scroll, not the page */
 
 /* ── SPINE ────────────────────────────────────────────────
    Thin abutted blocks sampled from the artwork: a luminance
-   ramp with the record's most saturated colour dropped in as
+   ramp with the record's most saturated color dropped in as
    the single pop. Spans the full height of the column.
    ─────────────────────────────────────────────────────────── */
 .spine {
@@ -83,7 +83,7 @@ body { overflow: hidden; }          /* the columns scroll, not the page */
 
 /* ── GROUND ───────────────────────────────────────────────
    The cover blown far past recognition and stretched vertically,
-   so it reads as a field of colour rather than an image. Two
+   so it reads as a field of color rather than an image. Two
    layers at different scales and rotations drift against each
    other on long, unequal cycles — they never resynchronise, so
    the field keeps churning instead of looping visibly.
@@ -241,7 +241,7 @@ body { overflow: hidden; }          /* the columns scroll, not the page */
   gap: 11px;
 }
 /* gentle pop on hover — the block appears and the label swells a hair.
-   The block is a pseudo-element so it stays centred on the caps. */
+   The block is a pseudo-element so it stays centered on the caps. */
 .listen a {
   position: relative;
   z-index: 0;

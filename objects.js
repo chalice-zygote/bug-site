@@ -83,7 +83,7 @@ window.OBJECTS = [
     title: 'B.U.G. Flags',
     meta: 'OPEN EDITION',
     note: '',
-    /* Alpha video rather than a GIF — 256 colours could not hold the
+    /* Alpha video rather than a GIF — 256 colors could not hold the
        cloth gradients. Extension is chosen at runtime: Safari renders
        VP9 alpha as a black box, so it gets the HEVC. */
     thumbVideo: 'assets/objects/flags',

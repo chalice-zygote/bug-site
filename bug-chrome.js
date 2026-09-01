@@ -126,7 +126,7 @@ window.bugSrcset = function (p) {
   /* ═══════════════════════════════════════════════════════
      CAP CENTRING — measured, not estimated
 
-     All-caps type does not sit centred in its line box: the box
+     All-caps type does not sit centered in its line box: the box
      reserves descender space that capitals never use, so the
      letters ride high. Every inverted block (nav active, drawer
      active, title blocks, link hovers) has to shift by that

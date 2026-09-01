@@ -18,7 +18,7 @@
   --orange:      #FF4400;
   --yellow:      #FFDD00;
   --blue:        #0400FF;
-  --nav-grey:    #AFAFAF;
+  --nav-gray:    #AFAFAF;
   --field-stroke:#AFAFAF;
   --btn-fill:    #414149;
   --ink:         #1E1E1E;
@@ -80,7 +80,7 @@ body {
 /* ── SHIMMER ──────────────────────────────────────────────
    Blue with a slow gradient pass, orange on hover. Icons are
    drawn as a MASK over the gradient — an <img> cannot be
-   recoloured or gradient-filled from CSS. Shared, because the
+   recolored or gradient-filled from CSS. Shared, because the
    home page and the info page both use it.
    ─────────────────────────────────────────────────────────── */
 .shim {
@@ -197,7 +197,7 @@ body {
   font-weight: 700;
   font-size: 54.03px;
   letter-spacing: -0.08em;
-  color: var(--nav-grey);
+  color: var(--nav-gray);
   text-decoration: none;
   margin-right: 29px;
 }
@@ -248,7 +248,7 @@ body {
   outline: none;
   cursor: text;
 }
-.row input::placeholder { color: var(--nav-grey); opacity: 1; }
+.row input::placeholder { color: var(--nav-gray); opacity: 1; }
 .row input:focus { border-color: var(--orange); }
 
 .row button {
@@ -260,7 +260,7 @@ body {
   font-weight: 700;
   font-size: 65.62px;
   letter-spacing: -0.08em;
-  color: var(--nav-grey);
+  color: var(--nav-gray);
   cursor: pointer;
   line-height: 1;
   padding: 0 0 0 6px;
@@ -279,7 +279,7 @@ body {
   font-weight: 400;
   font-size: 53.45px;
   letter-spacing: -0.08em;
-  color: var(--nav-grey);
+  color: var(--nav-gray);
   line-height: 1;
 }
 #search-dots.hide { display: none; }
@@ -422,7 +422,7 @@ body {
 #menu a.is-active {
   position: relative;
   z-index: 0;
-  color: var(--nav-grey);
+  color: var(--nav-gray);
   background: none;
   align-self: flex-start;
   padding: 7px calc(var(--block-pad) + 0.06em * var(--track-comp)) 7px var(--block-pad);
@@ -440,7 +440,7 @@ body {
 }
 /* the mark and the rating sit together at the foot of the drawer */
 /* left edge matches the nav items above — 24px, the same padding
-   #menu a carries — rather than sitting centred on its own */
+   #menu a carries — rather than sitting centered on its own */
 #menu .menu-foot {
   margin-top: auto;
   padding: 7px 24px 24px;
