@@ -527,12 +527,36 @@ body.flag-hover { cursor: pointer; }
      once the first is playable. */
   const NARROW = window.matchMedia('(max-width: 900px)').matches;
 
-  elA.src = src(FLAGS[0]);
-  if (NARROW) {
-    elA.addEventListener('canplay', () => { elB.src = src(FLAGS[1]); }, { once: true });
-  } else {
-    elB.src = src(FLAGS[1]);
+  /* The autoplay ATTRIBUTE only applies to a source present at parse
+     time. These are assigned here, after load, so mobile browsers do
+     not honour it and fall back to showing a play control. Every
+     source assignment therefore calls load() then play() explicitly.
+
+     A missing -sm encode falls back to the full-size file rather than
+     leaving a dead element. */
+  function arm(el, name, then) {
+    el.onerror = () => {
+      if (!SM || el.dataset.fellBack) return;
+      el.dataset.fellBack = '1';
+      el.src = `assets/flags/${name}${EXT}`;      // full size
+      el.load();
+      el.play().catch(() => {});
+    };
+    el.src = src(name);
+    el.load();
+    el.play().catch(() => {});
+    if (then) el.addEventListener('canplay', then, { once: true });
   }
+
+  arm(elA, FLAGS[0], NARROW ? () => arm(elB, FLAGS[1]) : null);
+  if (!NARROW) arm(elB, FLAGS[1]);
+
+  /* iOS suspends video when the tab is backgrounded and does not
+     always resume it — nudge both on return */
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState !== 'visible') return;
+    [elA, elB].forEach(v => { if (v.paused) v.play().catch(() => {}); });
+  });
 
   const hitCanvas = document.createElement('canvas');
   hitCanvas.width = 96;
@@ -565,7 +589,10 @@ body.flag-hover { cursor: pointer; }
     elB.currentTime = 0;
     elB.play().catch(() => {});
     const tmp = elA; elA = elB; elB = tmp;
-    elB.src = src(FLAGS[(flagIndex + 1) % FLAGS.length]);
+    /* through arm() so the preloaded next flag gets the same
+       load/play treatment and the same -sm fallback */
+    arm(elB, FLAGS[(flagIndex + 1) % FLAGS.length]);
+    elB.pause();                 // it is the hidden one; play on reveal
     alignFlag();
   }
 
