@@ -332,6 +332,11 @@ body {
 }
 #stream-mute img { width: 100%; height: 100%; display: block; }
 
+/* the address field opens only when a number has been entered */
+#sms-row { display: none; margin-top: 6px; }
+#sms-row.show { display: flex; }
+#sms-row input { flex: 1 1 auto; min-width: 0; }
+
 #consent {
   margin-top: 6px;
   font-family: var(--type-serif);
