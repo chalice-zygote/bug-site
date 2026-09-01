@@ -23,7 +23,7 @@
   if (!hit) {
     document.getElementById('record').innerHTML =
       `<div class="credits">NO RECORD FILED UNDER &ldquo;${id || '\u2014'}&rdquo;.<br><br>` +
-      list.map(x => `<a href="${x.id}.html" style="color:inherit">${x.catDisp} &mdash; ${x.artist} ${x.title}</a>`).join('<br>') +
+      list.map(x => `<a href="${x.id}" style="color:inherit">${x.catDisp} &mdash; ${x.artist} ${x.title}</a>`).join('<br>') +
       `</div>`;
     return;
   }

@@ -238,7 +238,7 @@ main {
 
     <div class="section-head archive-head">
       <h2>ARCHIVE<span class="count" id="ar-count"></span></h2>
-      <a class="lb gallery-link" href="gallery.html">GALLERY &rarr;</a>
+      <a class="lb gallery-link" href="gallery">GALLERY &rarr;</a>
     </div>
     <div id="archive"></div>
   </main>
@@ -288,7 +288,7 @@ main {
     <div class="entry">
       <div class="cat">${p.cat}</div>
       <div class="body">
-        <h3><a class="lb lb-flush to-gallery" href="gallery.html#${p.slug}">${p.title}</a></h3>
+        <h3><a class="lb lb-flush to-gallery" href="gallery#${p.slug}">${p.title}</a></h3>
         ${p.sub ? `<div class="sub">${p.sub}</div>` : ''}
         ${p.venue && !p.venueAfter ? `<div class="venue">${p.venue}</div>` : ''}
         ${bill(p)}

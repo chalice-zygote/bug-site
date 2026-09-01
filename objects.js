@@ -20,7 +20,7 @@
 window.OBJECTS = [
   {
     cat: 'BUG.OBJT.001', catDisp: 'B.U.G. OBJT 001',
-    slug: 'shirts', href: 'shirts.html',
+    slug: 'shirts', href: 'shirts',
     title: 'B.U.G. &times; UG Cursor Cross Shirt',
     meta: '',
     note: [
@@ -55,7 +55,7 @@ window.OBJECTS = [
 
   {
     cat: 'BUG.OBJT.002', catDisp: 'B.U.G. OBJT 002',
-    slug: 'hats', href: 'hats.html',
+    slug: 'hats', href: 'hats',
     title: '<span class="mw"><i>midi</i>WORLD<i>live</i></span> Hat',
     meta: 'LIMITED EDITION &middot; SOLD OUT',
     note: [
@@ -79,7 +79,7 @@ window.OBJECTS = [
 
   {
     cat: 'BUG.OBJT.003', catDisp: 'B.U.G. OBJT 003',
-    slug: 'flags', href: 'flags.html',
+    slug: 'flags', href: 'flags',
     title: 'B.U.G. Flags',
     meta: 'OPEN EDITION',
     note: '',

@@ -157,7 +157,7 @@ main {
   const ordered = window.RELEASES.slice().sort((a, b) => (b.cat || '').localeCompare(a.cat || ''));
 
   main.innerHTML = ordered.map(r => `
-    <a class="release" href="${r.id}.html">
+    <a class="release" href="${r.id}">
       <div class="rail">
         <span>${r.cat}</span>
         <span>${r.url}</span>

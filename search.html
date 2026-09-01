@@ -127,7 +127,7 @@ main {
 
   (window.RELEASES || []).forEach(r => add('WRKS', {
     no: r.catDisp, title: strip(r.artist) + ' — ' + strip(r.title),
-    why: r.format + ' ' + r.date, href: r.id + '.html',
+    why: r.format + ' ' + r.date, href: r.id,
     extra: [r.artist, r.title, r.format, r.date, r.artworkBy, r.url,
             ...(r.tracks || []), ...(r.credits || []).map(strip),
             ...(r.note || []).map(strip),
@@ -136,20 +136,20 @@ main {
 
   (window.PROGRAMS || []).forEach(p => add('PRGM', {
     no: p.catDisp, title: strip(p.title), why: p.venue ? strip(p.venue) : p.date,
-    href: 'gallery.html#' + p.slug,
+    href: 'gallery#' + p.slug,
     extra: [p.title, p.sub, p.venue, p.date, ...(p.bill || []).map(strip),
             ...(p.parts || []).flatMap(l => [l.city, l.venue, l.with])]
   }));
 
   (window.CHANNELS || []).forEach(c => add('CHNL', {
     no: c.catDisp, title: strip(c.artist) + ' — ' + strip(c.title),
-    why: c.dur + ' ' + c.date, href: 'media.html',
+    why: c.dur + ' ' + c.date, href: 'media',
     extra: [c.artist, c.title, c.dur, c.date, 'video']
   }));
 
   (window.OBJECTS || []).forEach(o => add('OBJT', {
     no: o.catDisp, title: strip(o.title), why: strip(o.meta) || 'object',
-    href: o.href || 'media.html',
+    href: o.href || 'media',
     extra: [o.title, o.meta, ...(Array.isArray(o.note) ? o.note.map(strip) : [strip(o.note)])]
   }));
 

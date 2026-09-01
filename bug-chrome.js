@@ -35,10 +35,10 @@ window.bugSrcset = function (p) {
   const IS_HOME = PAGE === 'home';
 
   const NAV = [
-    { label: 'MEDIA',   href: 'media.html',   id: 'media'   },
-    { label: 'CATALOG', href: 'catalog.html', id: 'catalog' },
-    { label: 'PROGRAM', href: 'program.html', id: 'program' },
-    { label: 'INFO',    href: 'info.html',    id: 'info'    }
+    { label: 'MEDIA',   href: 'media',   id: 'media'   },
+    { label: 'CATALOG', href: 'catalog', id: 'catalog' },
+    { label: 'PROGRAM', href: 'program', id: 'program' },
+    { label: 'INFO',    href: 'info',    id: 'info'    }
   ];
 
   /* ═══════════════════════════════════════════════════════
@@ -125,8 +125,8 @@ window.bugSrcset = function (p) {
           informational text messages from Beautiful Unity Gymnasium. Message
           frequency varies. Message and data rates may apply. Consent is not a
           condition of purchase. Reply HELP for help, STOP to cancel.
-          <a href="terms.html">Terms</a> and
-          <a href="privacy.html">Privacy Policy</a>.
+          <a href="terms">Terms</a> and
+          <a href="privacy">Privacy Policy</a>.
         </div>
         <div id="form-status" role="status" aria-live="polite"></div>
       </div>
@@ -248,7 +248,7 @@ window.bugSrcset = function (p) {
       window.dispatchEvent(new CustomEvent('bug:sfx', { detail: { on } }));
     });
   } else {
-    spkBtn.addEventListener('click', () => { window.location.href = 'index.html'; });
+    spkBtn.addEventListener('click', () => { window.location.href = 'index'; });
   }
 
   /* ═══════════════════════════════════════════════════════
@@ -469,7 +469,7 @@ window.bugSrcset = function (p) {
   function runSearch() {
     const v = searchInput.value.trim();
     if (!v) { searchInput.focus(); return; }
-    window.location.href = 'search.html#q=' + encodeURIComponent(v);
+    window.location.href = 'search#q=' + encodeURIComponent(v);
   }
 
   document.getElementById('search-btn').addEventListener('click', runSearch);
