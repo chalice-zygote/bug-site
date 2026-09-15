@@ -71,10 +71,9 @@ window.RELEASES = [
     panel: 'rgba(255,255,255,0.69)',
 
     listen: [
-      { label: 'BANDCAMP', href: '#' },
-      { label: 'YOUTUBE',  href: '#' },
-      { label: 'NINA',     href: '#' },
-      { label: 'SPOTIFY',  href: '#' }
+      { label: 'YOUTUBE',  href: 'https://youtu.be/JAhpET6Zok0' },
+      { label: 'SPOTIFY',  href: 'https://open.spotify.com/track/6nkxqQFyJFAUIosre9VYVl' },
+      { label: 'BANDCAMP', href: 'https://unitygarnish.bandcamp.com/track/f-ing-angels' }
     ],
 
     /* Unity Garnish sigil. A GRID, not preformatted text — spaces and
@@ -149,11 +148,11 @@ window.RELEASES = [
     ],
 
     listen: [
-      { label: 'BANDCAMP', href: '#' },
-      { label: 'YOUTUBE',  href: '#' },
-      { label: 'NINA',     href: '#' },
-      { label: 'SPOTIFY',  href: '#' }
+      { label: 'SPOTIFY',  href: 'https://open.spotify.com/album/2RKVQKaR4EBHm8wdjAMwiP' },
+      { label: 'BANDCAMP', href: 'https://urielsounds.bandcamp.com/album/miasma' },
+      { label: 'YOUTUBE',  href: 'https://youtu.be/Af7jz8PLqEA' }
     ],
+    buy: { label: 'DM FOR PURCHASE', href: 'mailto:b.u.gymnasium@gmail.com?subject=MIASMA%20%E2%80%94%20purchase' },
 
     /* left column — top to bottom */
     plates: [
@@ -170,7 +169,7 @@ window.RELEASES = [
     artist:   'TETON ETERNAL',
     title:    'MIRACLE!',
     format:   'ALBUM',
-    date:     '08.16.26',
+    date:     '09.17.26',
     cat:      'BUG.WRKS.003',
     catDisp:  'B.U.G. WRKS 003',
     artworkBy:'SAM KLICKNER',
@@ -182,7 +181,7 @@ window.RELEASES = [
     rightTop: 'assets/releases/miracle-booklet-back.png',
 
     credits: [
-      'RELEASED 08.16.26',
+      'RELEASED 09.17.26',
       'MUSIC BY ELIZABETH LOVELL AND SAM KLICKNER',
       'PRODUCED BY SAM KLICKNER AND DEREK BLACKSTONE',
       '',
@@ -210,12 +209,27 @@ window.RELEASES = [
       'PAIN ALIVE', 'MIRACLE'
     ],
 
-    listen: [
-      { label: 'BANDCAMP', href: '#' },
-      { label: 'YOUTUBE',  href: '#' },
-      { label: 'NINA',     href: '#' },
-      { label: 'SPOTIFY',  href: '#' }
+    /* Each entry is a PARAGRAPH, not a line — it wraps on its own. */
+    note: [
+      'Miracle! is the second Teton full-length and the first under the &lsquo;Eternal&rsquo; modifier &mdash; a small iteration that marks an ambitious rebuild. The overexposed art-rock scaffolding of the earlier work has been sifted, abandoned, and metabolized, broken down to nutrify something sweeter and icier: acousti-digital pop at superimposed fidelities of mid-80s art pop and hyperreal modern computer music.',
+      '',
+      'Clearer traces of Blue Nile than anything in the back catalog, with Peter Gabriel big-time grandiosity, Hannah Diamond&rsquo;s glittery, richly detailed digital artifice, ML Buch&rsquo;s virtual guitaring, and two Suzannes; Vega&rsquo;s close-mic&rsquo;d anti-anti-country, Ciani&rsquo;s cascading LFO wave-smashing.',
+      '',
+      'Counterpoint is delivered clean and a half-degree virtual. &ldquo;Real&rdquo; instrumentation is close-tracked and then sculpted into metadata. Fretless bass married to Moog mono bass, acoustic percussion interpolated by monomachine and soft synths, vocals delivered near-raw and then mangled into hard-quantized shards. An oft-used device of quotation-style plunderphonics: tricks and musical memes from Fleetwood Mac to Yeezus turn up as gestures recognizable by shape and sound rather than by sample.',
+      '',
+      'It is an album about Tarkovskian solitude, oneness, and a Depeche Mode-colored angst toward the talking. It is also the straw that broke the camel&rsquo;s back, leading from a terminal pursuit of label representation to the founding of the Beautiful Unity Gymnasium.'
     ],
+
+    listen: [
+      { label: 'SUBVERT',  href: 'https://subvert.fm/teton-eternal/miracle' },
+      { label: 'BANDCAMP', href: 'https://tetoneternal.bandcamp.com/album/miracle' }
+    ],
+    buy: { label: 'PURCHASE CD', href: 'https://tetoneternal.bandcamp.com/album/miracle' },
+
+    /* Held until release. Before this moment the catalog and the
+       release page show the work boxed out rather than omitting it —
+       the register carries a thing that exists before it is issued. */
+    releaseAt: '2026-09-17T00:00:00-07:00',
 
     /* left column — top to bottom */
     plates: [
