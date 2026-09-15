@@ -19,6 +19,30 @@
    this can be applied unconditionally without checking whether a
    given variant exists.
    ═══════════════════════════════════════════════════════════ */
+
+/* ═══════════════════════════════════════════════════════════
+   HELD RELEASES
+
+   A record with `releaseAt` in the future is carried but not
+   revealed: the artwork is boxed out and the title censored.
+   The register holds a thing before it is issued; it does not
+   pretend the thing is absent.
+   ═══════════════════════════════════════════════════════════ */
+window.bugHeld = function (r) {
+  return !!(r && r.releaseAt && Date.now() < new Date(r.releaseAt).getTime());
+};
+
+window.bugCountdown = function (iso) {
+  const ms = new Date(iso).getTime() - Date.now();
+  if (ms <= 0) return '';
+  const d = Math.floor(ms / 86400000);
+  const h = Math.floor(ms % 86400000 / 3600000);
+  const m = Math.floor(ms % 3600000 / 60000);
+  const s = Math.floor(ms % 60000 / 1000);
+  const p = n => String(n).padStart(2, '0');
+  return d > 0 ? `${d}d ${p(h)}:${p(m)}:${p(s)}` : `${p(h)}:${p(m)}:${p(s)}`;
+};
+
 window.bugSrcset = function (p) {
   if (!p) return '';
   const i = p.lastIndexOf('.');
