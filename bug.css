@@ -602,7 +602,10 @@ body.menu-open #page { transform: translateX(var(--drawer-w)); }
   #stack { width: 100%; }
   .row { height: 40px; margin-bottom: 5px; }
   .row input { height: 40px; font-size: 34px; border-width: 1.6px; padding: 0 4px; }
-  .row button { width: 148px; flex: 0 0 148px; height: 40px; font-size: 42px; padding: 0 0 0 4px; }
+  /* the subscribe link is an <a>, not a <button>, so it has to be
+     named here or it keeps its desktop size on a phone */
+  .row button,
+  #subscribe-link { width: 148px; flex: 0 0 148px; height: 40px; font-size: 42px; padding: 0 0 0 4px; }
   #search-dots { font-size: 34px; padding: 0 4px; }
   #stream-row { height: 40px; padding: 0 6px; }
   #stream-title { font-size: 25px; }
