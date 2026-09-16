@@ -77,6 +77,61 @@ body {
    text-transform:none is load-bearing: the object and product pages
    set everything in caps, which would otherwise flatten this to
    MIDIWORLDLIVE. The wordmark is not subject to the house casing. */
+/* the subscribe field became a link — the form and its disclosure
+   live on /subscribe, so the legal text sits where collection
+   happens rather than under every page of the site */
+/* the same object as the search button, sitting where its row's
+   input used to — so the row reads as a button alone, right aligned */
+.row.sub-row { justify-content: flex-end; }
+#subscribe-link {
+  width: 228.36px; height: 59.52px;
+  flex: 0 0 228.36px;
+  background: var(--btn-fill);
+  border: 0;
+  font-family: var(--type-cn);
+  font-weight: 700;
+  font-size: 65.62px;
+  letter-spacing: -0.08em;
+  color: var(--nav-gray);
+  text-decoration: none;
+  line-height: 1;
+  padding: 0 0 0 6px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  transition: background 0.14s ease, color 0.14s ease;
+}
+#subscribe-link:hover { background: var(--orange); color: var(--white); }
+
+/* ── SITE FOOT ────────────────────────────────────────────
+   Official name, contact and policy links on every page.
+   Carriers check the footer specifically when verifying that a
+   business is real.
+   ─────────────────────────────────────────────────────────── */
+#site-foot {
+  position: relative;
+  z-index: 3;
+  padding: 26px 46px 30px;
+  text-align: center;
+  border-top: 1px solid rgba(4,0,255,0.28);
+  font-family: var(--type-cn);
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.4;
+  letter-spacing: -0.03em;
+  color: var(--blue);
+  background: var(--white);
+}
+#site-foot .name { font-weight: 700; }
+#site-foot a { color: inherit; }
+#site-foot a:hover { color: var(--orange); }
+#site-foot .links { margin-top: 7px; }
+#site-foot .links a + a { margin-left: 14px; }
+
+@media (max-width: 900px) {
+  #site-foot { padding: 20px 16px 26px; font-size: 14px; }
+}
+
 /* ── SHIMMER ──────────────────────────────────────────────
    Blue with a slow gradient pass, orange on hover. Icons are
    drawn as a MASK over the gradient — an <img> cannot be
@@ -345,16 +400,20 @@ body {
 #sms-row.show { display: flex; }
 #sms-row input { flex: 1 1 auto; min-width: 0; }
 
+/* Always visible. Carriers require the marketing disclosure at the
+   point of collection — a version that reveals only once a number is
+   typed reads as absent to a reviewer, and was the cited reason for
+   the first 10DLC rejection. */
 #consent {
   margin-top: 6px;
   font-family: var(--type-serif);
-  font-size: 17px;
-  line-height: 1.35;
+  font-size: 15px;
+  line-height: 1.3;
   color: var(--ink);
   max-width: 597.63px;
-  display: none;
+  display: block;
 }
-#consent.show { display: block; }
+#consent a { color: inherit; }
 #consent a { color: var(--ink); }
 
 #form-status {

@@ -65,23 +65,6 @@ window.bugSrcset = function (p) {
     { label: 'INFO',    href: 'info',    id: 'info'    }
   ];
 
-  /* ═══════════════════════════════════════════════════════
-     SUBSCRIBE
-
-     Posted to Mailchimp by JSONP rather than a form submit, so
-     the page is not navigated away from. Their /post-json
-     endpoint exists for exactly this and answers with a status
-     the page can act on.
-
-     A Mailchimp audience is KEYED on email address — it is the
-     unique identifier for a contact, and SMS is an attribute of
-     one rather than a contact type of its own. So a number can
-     be added to an address but cannot stand in place of one.
-     Phone-only enrollment would need a different provider.
-     ═══════════════════════════════════════════════════════ */
-  const MC_ACTION = 'https://bugymnasium.us9.list-manage.com/subscribe/post' +
-                    '?u=46092f816ca617d16f6599c08&id=6beee36f60&f_id=0046f2e3f0';
-  const MC_HP     = 'b_46092f816ca617d16f6599c08_6beee36f60';
 
   /* `label` is used verbatim in the bar when present, so a record can
      read exactly as it should rather than being assembled from parts. */
@@ -123,14 +106,8 @@ window.bugSrcset = function (p) {
 
     <div id="stack-wrap">
       <div id="stack">
-        <div class="row">
-          <input type="text" id="subscribe-input" placeholder="email address or cell #"
-                 autocomplete="off" spellcheck="false">
-          <button id="subscribe-btn">subscribe</button>
-        </div>
-        <div class="row" id="sms-row">
-          <input type="email" id="sms-email" placeholder="email address (required)"
-                 autocomplete="email" spellcheck="false">
+        <div class="row sub-row">
+          <a id="subscribe-link" href="subscribe">subscribe</a>
         </div>
         <div class="row">
           <div class="input-wrap">
@@ -145,22 +122,27 @@ window.bugSrcset = function (p) {
             <img id="stream-mute-img" src="assets/off.svg" alt="">
           </button>
         </div>
-        <div class="hp" aria-hidden="true">
-          <label>Company<input type="text" id="hp-field" tabindex="-1" autocomplete="off"></label>
-        </div>
-        <div id="consent">
-          By providing a number the party consents to receive marketing and
-          informational text messages from Beautiful Unity Gymnasium. Message
-          frequency varies. Message and data rates may apply. Consent is not a
-          condition of purchase. Reply HELP for help, STOP to cancel.
-          <a href="terms">Terms</a> and
-          <a href="privacy">Privacy Policy</a>.
-        </div>
-        <div id="form-status" role="status" aria-live="polite"></div>
       </div>
     </div>
 
   </div>`;
+
+  /* ── site foot ──────────────────────────────────────────
+     Official business name, contact and policy links, on every
+     page. Carriers inspect the footer when verifying a brand,
+     and its absence was cited in the first 10DLC rejection. */
+  const foot = document.createElement('footer');
+  foot.id = 'site-foot';
+  foot.innerHTML = `
+    <div class="name">BEAUTIFUL UNITY GYMNASIUM</div>
+    <div>Label, collective, studio, entity &middot; Portland, Oregon, United States</div>
+    <div><a href="mailto:b.u.gymnasium@gmail.com">b.u.gymnasium@gmail.com</a></div>
+    <div class="links">
+      <a href="register">Catalog</a>
+      <a href="privacy">Privacy Policy</a>
+      <a href="terms">Messaging Terms</a>
+    </div>`;
+  document.body.appendChild(foot);
 
   document.body.insertAdjacentHTML('beforeend', `
   <div id="menu-scrim"></div>
@@ -438,79 +420,9 @@ window.bugSrcset = function (p) {
     save();
   });
 
-  /* ── subscribe ─────────────────────────────────────────── */
-  const subInput = document.getElementById('subscribe-input');
-  const smsEmail = document.getElementById('sms-email');
-  const smsRow   = document.getElementById('sms-row');
-  const subBtn   = document.getElementById('subscribe-btn');
-  const consent  = document.getElementById('consent');
-  const status   = document.getElementById('form-status');
-  const hp       = document.getElementById('hp-field');
-  const loadedAt = Date.now();
-
-  const isEmail = v => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim());
-  const looksPhoneish = v => /^[\d\s().+-]{4,}$/.test(v.trim());
-
-  /* A number entered on its own cannot enroll anyone, so the address
-     field opens beneath it. The consent text appears at the same
-     moment — carriers require it where the number is typed, not only
-     on the page it links to. */
-  subInput.addEventListener('input', () => {
-    const phoneish = looksPhoneish(subInput.value);
-    smsRow.classList.toggle('show', phoneish);
-    consent.classList.toggle('show', phoneish);
-  });
-
-  function doSubscribe() {
-    const raw   = subInput.value.trim();
-    const phone = looksPhoneish(raw) ? raw : '';
-    const email = phone ? smsEmail.value.trim() : raw;
-
-    if (hp.value || Date.now() - loadedAt < 2000) {   // bot
-      status.textContent = 'transmitted.';
-      return;
-    }
-    if (!isEmail(email)) {
-      status.textContent = phone
-        ? 'an address is required alongside the number.'
-        : 'a valid email address is required.';
-      (phone ? smsEmail : subInput).focus();
-      return;
-    }
-
-    /* Opens in a new window rather than posting in the background, so
-       the confirmation comes from Mailchimp itself. */
-    const f = document.createElement('form');
-    f.action = MC_ACTION;
-    f.method = 'POST';
-    f.target = '_blank';
-    f.rel = 'noopener';
-
-    const add = (name, value) => {
-      const i = document.createElement('input');
-      i.type = 'hidden'; i.name = name; i.value = value;
-      f.appendChild(i);
-    };
-    add('EMAIL', email);
-    if (phone) add('SMSPHONE', phone);
-    add(MC_HP, '');                    // their honeypot, deliberately empty
-
-    document.body.appendChild(f);
-    f.submit();
-    f.remove();
-
-    status.textContent = 'transmitted.';
-    subInput.value = '';
-    smsEmail.value = '';
-    smsRow.classList.remove('show');
-    consent.classList.remove('show');
-  }
-
-  subBtn.addEventListener('click', doSubscribe);
-  [subInput, smsEmail].forEach(el =>
-    el.addEventListener('keydown', e => {
-      if (e.key === 'Enter') { e.preventDefault(); doSubscribe(); }
-    }));
+  /* Subscribe lives on its own page — /subscribe — so the legal
+     disclosure sits where collection happens rather than under a
+     field on every page of the site. */
 
   /* ── search ────────────────────────────────────────────
      Hands off to search.html, which loads the registries and

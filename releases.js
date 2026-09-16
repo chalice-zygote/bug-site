@@ -211,18 +211,19 @@ window.RELEASES = [
 
     /* Each entry is a PARAGRAPH, not a line — it wraps on its own. */
     note: [
-      'Miracle! is the second Teton full-length and the first under the &lsquo;Eternal&rsquo; modifier &mdash; a small iteration that marks an ambitious rebuild. The overexposed art-rock scaffolding of the earlier work has been sifted, abandoned, and metabolized, broken down to nutrify something sweeter and icier: acousti-digital pop at superimposed fidelities of mid-80s art pop and hyperreal modern computer music.',
+      'Miracle! is the second Teton full-length and the first under the &lsquo;Eternal&rsquo; modifier &mdash; a small alteration that marks an ambitious rebuild for the Portland-based computer pop duo. The overexposed art-rock scaffolding of their earlier work has been sifted, salvaged, largely abandoned and metabolized, broken down to nutrify something at times sweeter and at others more warped: consistently uprezzed and icier, acousti-digital pop at superimposed fidelities, mid-80s art pop over hyperreal computer music.',
       '',
-      'Clearer traces of Blue Nile than anything in the back catalog, with Peter Gabriel big-time grandiosity, Hannah Diamond&rsquo;s glittery, richly detailed digital artifice, ML Buch&rsquo;s virtual guitaring, and two Suzannes; Vega&rsquo;s close-mic&rsquo;d anti-anti-country, Ciani&rsquo;s cascading LFO wave-smashing.',
+      'The counterpoint is generous, wrapped in a materiality that is half-degree virtual. &ldquo;Real&rdquo; instrumentation is close-tracked and then sculpted into metadata: fretless bass married to Moog mono bass, acoustic percussion interpolated by Monomachine and soft synths, vocals delivered sub-raw and then mangled into ultra-clocked shards.',
       '',
-      'Counterpoint is delivered clean and a half-degree virtual. &ldquo;Real&rdquo; instrumentation is close-tracked and then sculpted into metadata. Fretless bass married to Moog mono bass, acoustic percussion interpolated by monomachine and soft synths, vocals delivered near-raw and then mangled into hard-quantized shards. An oft-used device of quotation-style plunderphonics: tricks and musical memes from Fleetwood Mac to Yeezus turn up as gestures recognizable by shape and sound rather than by sample.',
+      'There are clearer traces of Blue Nile here than anywhere in the back catalog, along with big-time Peter Gabriel grandiosity, Hannah Diamond-y glittery artifice, Joni-isms through ML Buch&rsquo;s virtual guitaring, and two Suzannes: Vega&rsquo;s close-mic&rsquo;d anti-anti-country, Ciani&rsquo;s cascading LFO wave-smashing. Throughout, quotation-style plunderphonics pull tricks and sonic memes from Fleetwood Mac&rsquo;s Mirage to Ye&rsquo;s Yeezus, which turn up as gestures composed to mirror shape rather than lifted.',
       '',
-      'It is an album about Tarkovskian solitude, oneness, and a Depeche Mode-colored angst toward the talking. It is also the straw that broke the camel&rsquo;s back, leading from a terminal pursuit of label representation to the founding of the Beautiful Unity Gymnasium.'
+      'It is an album that touches on Tarkovskian solitude, oneness, unadvertised &ldquo;inside&rdquo; life and a Depeche-colored angst toward talking. The record is also a straw that broke a camel&rsquo;s back, leading from a terminal pursuit of label representation to the founding of the Beautiful Unity Gymnasium.'
     ],
 
     listen: [
       { label: 'SUBVERT',  href: 'https://subvert.fm/teton-eternal/miracle' },
-      { label: 'BANDCAMP', href: 'https://tetoneternal.bandcamp.com/album/miracle' }
+      { label: 'BANDCAMP', href: 'https://tetoneternal.bandcamp.com/album/miracle' },
+      { label: 'YOUTUBE',  href: 'https://youtu.be/sAa5HKl2yrw' }
     ],
     buy: { label: 'PURCHASE CD', href: 'https://tetoneternal.bandcamp.com/album/miracle' },
 
