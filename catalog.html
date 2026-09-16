@@ -218,7 +218,7 @@ main {
     <${held(r) ? "div" : "a"} class="release${held(r) ? ' held' : ''}"${held(r) ? "" : ` href="${r.id}"`}>
       <div class="rail">
         <span>${r.cat}</span>
-        <span>${r.url}</span>
+        <span>${held(r) ? '<i class="redact">________</i>' : r.url}</span>
       </div>
       <div class="plate">
         ${held(r)

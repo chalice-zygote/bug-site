@@ -87,6 +87,10 @@ window.bugSrcset = function (p) {
      read exactly as it should rather than being assembled from parts. */
   const PLAYLIST = [
     { label: 'Teton Eternal - Miracle! (BUG.WRKS.003&bull;2026) [37:49]',
+      /* until this moment the bar carries the record struck out and
+         counting, and the track will not play */
+      releaseAt: '2026-09-17T00:00:00-07:00',
+      heldLabel: 'Teton Eternal - <i class="redact">________</i> (BUG.WRKS.003&bull;2026)',
       title: 'Miracle!', artist: 'Teton Eternal', duration: '37:49',
       src: 'assets/audio/teton-eternal-miracle.mp3' }
   ];
@@ -309,10 +313,28 @@ window.bugSrcset = function (p) {
     streamMute.setAttribute('aria-label', streamOn ? 'Mute stream' : 'Unmute stream');
   }
 
+  /* one ticker for the bar, started only when something is held */
+  let heldTick = null;
+
   function showTitle(i) {
     if (!PLAYLIST.length) { streamTitle.innerHTML = '<span>&mdash;</span>'; return; }
     const t = PLAYLIST[i];
-    const text = t.label || `${t.artist} - ${t.title} [${t.duration}]`;
+
+    const held = window.bugHeld && window.bugHeld(t);
+    const text = held
+      ? `${t.heldLabel || `${t.artist} - <i class="redact">________</i>`} &nbsp;&mdash;&nbsp; ${window.bugCountdown(t.releaseAt)}`
+      : (t.label || `${t.artist} - ${t.title} [${t.duration}]`);
+
+    /* the countdown has to re-render every second; the roll animation
+       restarts with it, which is why it is only run while held */
+    if (held && !heldTick) {
+      heldTick = setInterval(() => {
+        if (!window.bugHeld(PLAYLIST[trackIndex])) {
+          clearInterval(heldTick); heldTick = null;
+        }
+        showTitle(trackIndex);
+      }, 1000);
+    }
 
     /* Doubled so the loop is seamless: the animation travels exactly
        half the width, at which point the copy sits where the original
@@ -335,7 +357,18 @@ window.bugSrcset = function (p) {
   function loadTrack(i, at) {
     if (!PLAYLIST.length || !stream) return;
     trackIndex = ((i % PLAYLIST.length) + PLAYLIST.length) % PLAYLIST.length;
-    stream.src = PLAYLIST[trackIndex].src;
+
+    /* A held record shows in the bar but has no source attached, so
+       pressing play does nothing rather than leaking the audio. */
+    const t = PLAYLIST[trackIndex];
+    if (window.bugHeld && window.bugHeld(t)) {
+      stream.removeAttribute('src');
+      stream.load();
+      showTitle(trackIndex);
+      return;
+    }
+
+    stream.src = t.src;
     showTitle(trackIndex);
     if (at) {
       stream.addEventListener('loadedmetadata', function once() {

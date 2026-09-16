@@ -103,6 +103,14 @@ body {
   100% { background-position: -30% 50%; }
 }
 
+/* struck-out text on a held record — shared by the stream bar and
+   the catalog, which both censor the same way */
+.redact {
+  font-style: normal;
+  letter-spacing: 0.02em;
+  opacity: 0.85;
+}
+
 .mw { text-transform: none !important; }
 .mw i { font-style: italic; }
 /* the upright D and the italic l collide loosely — pull them together */
