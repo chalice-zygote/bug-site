@@ -221,6 +221,7 @@ window.RELEASES = [
     ],
 
     listen: [
+      { label: 'SPOTIFY',  href: 'https://open.spotify.com/album/6bBNXzLj7XGjH7ixhb8ia1' },
       { label: 'SUBVERT',  href: 'https://subvert.fm/teton-eternal/miracle' },
       { label: 'BANDCAMP', href: 'https://tetoneternal.bandcamp.com/album/miracle' },
       { label: 'YOUTUBE',  href: 'https://youtu.be/sAa5HKl2yrw' }
