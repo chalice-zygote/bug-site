@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>THE BEAUTIFUL UNITY GYMNASIUM</title>
 <link rel="icon" href="assets/off-fav.svg" type="image/svg+xml">
 <link rel="preload" href="assets/fonts/heros-cn-bold.woff2" as="font" type="font/woff2" crossorigin>
@@ -236,10 +236,25 @@ html, body { background: var(--white); }
    ─────────────────────────────────────────────────────────── */
 #flash {
   position: fixed;
-  inset: 0;
   z-index: 0;
-  width: 100vw;
-  height: 100vh;
+  /* 100vh is the SMALL viewport on iOS once the toolbars are out —
+     it stopped short of both edges and left the page ground showing
+     as a band top and bottom. lvh is the LARGE viewport, the one the
+     rest of the page is laid out against, and with viewport-fit=cover
+     on the meta it takes in the safe areas too.
+
+     lvh alone still leaves two gaps: the toolbars ANIMATING in or out,
+     and rubber-band overscroll at either end, where iOS drags fixed
+     elements with the content and the ground shows through behind
+     them. So the layer is overscanned past all four edges. object-fit
+     is cover, so the extra is cropped, not stretched — it costs
+     nothing and nothing can expose an edge. */
+  top: -7vh;
+  top: -7lvh;
+  left: -4vw;
+  width: 108vw;
+  height: 114vh;
+  height: 114lvh;
   object-fit: cover;
   display: none;
   pointer-events: none;
@@ -249,7 +264,12 @@ html, body { background: var(--white); }
 /* the stage paints an opaque white ground — it has to step aside
    or the strobe sits behind it */
 body.armed #bg { opacity: 0; }
-body.armed, body.armed html { background: transparent; }
+body.armed { background: #000; }
+/* Safari tints its own top and bottom chrome from the page's
+   background colour. Left white, that tint read as the strobe being
+   cropped. Black lets the bands fall away into the strobe.
+   (`body.armed html` was never a selector — html is not inside body.) */
+html:has(body.armed) { background: #000; }
 
 /* ── DRIVE ────────────────────────────────────────────────
    Sits under the ticker. Dollies left and right on a long,

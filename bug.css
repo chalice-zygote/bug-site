@@ -128,6 +128,33 @@ body {
 #site-foot .links { margin-top: 7px; }
 #site-foot .links a + a { margin-left: 14px; }
 
+/* ── armed ────────────────────────────────────────────────
+   With the strobe running, a solid white bar across the foot
+   reads as a panel laid over it. The plate comes off and the
+   type carries its own light instead — the same stacked white
+   halo the info gate uses, scaled to 16px — so the strobe runs
+   underneath and the footer glows out of it.
+
+   The rule across the top goes too: it is the one remaining
+   full-width edge, and with the plate gone it read as the last
+   side of the box rather than a separator. The glow carries the
+   separation on its own.
+   ─────────────────────────────────────────────────────────── */
+body.armed #site-foot {
+  background: none;
+  border-top-color: transparent;
+  text-shadow:
+    0 0 6px  rgba(255,255,255,1),
+    0 0 12px rgba(255,255,255,1),
+    0 0 20px rgba(255,255,255,0.95),
+    0 0 34px rgba(255,255,255,0.8),
+    0 0 52px rgba(255,255,255,0.6),
+     1px  1px 2px rgba(255,255,255,1),
+    -1px -1px 2px rgba(255,255,255,1),
+     1px -1px 2px rgba(255,255,255,1),
+    -1px  1px 2px rgba(255,255,255,1);
+}
+
 @media (max-width: 900px) {
   #site-foot { padding: 20px 16px 26px; font-size: 14px; }
 }
