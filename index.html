@@ -243,18 +243,26 @@ html, body { background: var(--white); }
      rest of the page is laid out against, and with viewport-fit=cover
      on the meta it takes in the safe areas too.
 
-     lvh alone still leaves two gaps: the toolbars ANIMATING in or out,
-     and rubber-band overscroll at either end, where iOS drags fixed
-     elements with the content and the ground shows through behind
-     them. So the layer is overscanned past all four edges. object-fit
-     is cover, so the extra is cropped, not stretched — it costs
-     nothing and nothing can expose an edge. */
-  top: -7vh;
-  top: -7lvh;
-  left: -4vw;
-  width: 108vw;
-  height: 114vh;
-  height: 114lvh;
+     lvh alone still leaves three gaps: the safe areas, which a fixed
+     element does not always take in even under viewport-fit=cover;
+     the toolbars ANIMATING in or out; and rubber-band overscroll at
+     either end, where iOS drags fixed elements with the content and
+     the ground shows through behind them.
+
+     A percentage overscan was too small to close them — 7lvh is about
+     63px on a phone, and the top inset alone is near 59px. So the
+     insets are added explicitly with env(), then a flat 160px buffer
+     on top of that, which no toolbar transition comes close to.
+     object-fit is cover, so the extra is cropped, not stretched: the
+     only cost is that the strobe reads slightly tighter. */
+  top:  calc(-1 * (env(safe-area-inset-top, 0px)  + 160px));
+  left: calc(-1 * (env(safe-area-inset-left, 0px) + 80px));
+  width:  calc(100vw + env(safe-area-inset-left, 0px)
+                     + env(safe-area-inset-right, 0px) + 160px);
+  height: calc(100vh  + env(safe-area-inset-top, 0px)
+                      + env(safe-area-inset-bottom, 0px) + 320px);
+  height: calc(100lvh + env(safe-area-inset-top, 0px)
+                      + env(safe-area-inset-bottom, 0px) + 320px);
   object-fit: cover;
   display: none;
   pointer-events: none;
