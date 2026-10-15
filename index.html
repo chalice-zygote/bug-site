@@ -15,6 +15,10 @@
    The header lives in bug.css / bug-chrome.js.
    ═══════════════════════════════════════════════════════════ */
 :root {
+  /* exposed so the diagnostic can read them back — temporary */
+  --sai-t: env(safe-area-inset-top, 0px);
+  --sai-b: env(safe-area-inset-bottom, 0px);
+
   --ticker-y: 1600px;
 
   --flag-offset: 0px;
@@ -418,6 +422,48 @@ body.flag-hover { cursor: pointer; }
 <body data-page="home">
 
 <video id="flash" loop muted playsinline preload="none"></video>
+
+<!-- ── TEMPORARY DIAGNOSTIC ──────────────────────────────────
+     Prints the strobe's real measured box against the viewport,
+     on the actual device. Remove once the cause is known. -->
+<pre id="diag" style="
+  position: fixed; left: 8px; right: 8px; top: 40%;
+  z-index: 99999; margin: 0; padding: 8px;
+  background: rgba(0,0,0,0.88); color: #0f0;
+  font: 11px/1.45 ui-monospace, Menlo, monospace;
+  white-space: pre-wrap; display: none; pointer-events: none;"></pre>
+<script>
+(() => {
+  const d = document.getElementById('diag');
+  const f = document.getElementById('flash');
+  const cs = getComputedStyle(document.documentElement);
+  const env = n => cs.getPropertyValue('--sai-' + n) || '?';
+  function read() {
+    if (!document.body.classList.contains('armed')) { d.style.display = 'none'; return; }
+    const r  = f.getBoundingClientRect();
+    const vv = window.visualViewport || {};
+    d.style.display = 'block';
+    d.textContent =
+      'flash rect  top ' + r.top.toFixed(1) + '  bottom ' + r.bottom.toFixed(1) +
+      '\n            left ' + r.left.toFixed(1) + '  right ' + r.right.toFixed(1) +
+      '\n            h ' + r.height.toFixed(1) + '  w ' + r.width.toFixed(1) +
+      '\ninnerHeight ' + window.innerHeight + '   innerWidth ' + window.innerWidth +
+      '\nvisualVP    h ' + (vv.height ? vv.height.toFixed(1) : '?') +
+                  '  offTop ' + (vv.offsetTop != null ? vv.offsetTop.toFixed(1) : '?') +
+      '\nscreen      h ' + screen.height + '  dpr ' + devicePixelRatio +
+      '\nsafe-area   t ' + env('t') + ' b ' + env('b') +
+      '\ncomputed    pos ' + getComputedStyle(f).position +
+                  '  top ' + getComputedStyle(f).top +
+                  '  h ' + getComputedStyle(f).height +
+      '\nvideo       ' + f.videoWidth + 'x' + f.videoHeight +
+                  '  objFit ' + getComputedStyle(f).objectFit;
+  }
+  addEventListener('scroll', read, { passive: true });
+  addEventListener('resize', read);
+  document.addEventListener('click', () => setTimeout(read, 60));
+  setInterval(read, 700);
+})();
+</script>
 
 <div id="page">
   <div id="scaler">
