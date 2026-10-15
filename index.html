@@ -272,7 +272,14 @@ html, body { background: var(--white); }
 /* the stage paints an opaque white ground — it has to step aside
    or the strobe sits behind it */
 body.armed #bg { opacity: 0; }
-body.armed { background: #000; }
+/* body carries overflow-x: hidden in bug.css to kill sideways drift.
+   WebKit propagates that to the viewport, and the viewport then CLIPS
+   fixed children — to a box that stops at the safe areas. That is what
+   was cropping the strobe top and bottom, and why overscanning it did
+   nothing: the clip lands after sizing, so every size got cut to the
+   same box. Lifted only while armed. #scaler has its own
+   overflow:hidden, so nothing drifts sideways in the meantime. */
+body.armed { background: #000; overflow-x: visible; }
 /* Safari tints its own top and bottom chrome from the page's
    background colour. Left white, that tint read as the strobe being
    cropped. Black lets the bands fall away into the strobe.
