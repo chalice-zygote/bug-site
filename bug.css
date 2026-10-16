@@ -170,20 +170,20 @@ body.armed #site-foot {
      collapses to nothing and the icon simply vanishes */
   width: 100%;
   height: 100%;
-  /* 180deg — the pass runs straight down the glyph rather than
-     across it on the diagonal */
-  background-image: linear-gradient(180deg,
+  /* 90deg — the pass runs straight across the glyph, left to right,
+     rather than on the diagonal it started as */
+  background-image: linear-gradient(90deg,
     var(--blue) 0%, var(--blue) 34%,
     #6b66ff 46%, #ffffff 50%, #6b66ff 54%,
     var(--blue) 66%, var(--blue) 100%);
-  background-size: 100% 320%;
+  background-size: 320% 100%;
   animation: shim 1.9s linear infinite;
   -webkit-mask: var(--icon) center / contain no-repeat;
           mask: var(--icon) center / contain no-repeat;
 }
 @keyframes shim {
-  0%   { background-position: 50% 130%; }
-  100% { background-position: 50% -30%; }
+  0%   { background-position: 130% 50%; }
+  100% { background-position: -30% 50%; }
 }
 
 /* struck-out text on a held record — shared by the stream bar and
