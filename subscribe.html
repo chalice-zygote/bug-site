@@ -279,6 +279,28 @@ main {
 
   const isEmail = v => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim());
 
+  /* ── CARRIED-OVER VALUE ─────────────────────────────────
+     The header field hands off whatever was typed as ?v=. An "@"
+     sorts it to email, anything else is treated as a number and
+     stripped to digits. Nothing is submitted on arrival — the
+     person still completes and sends the form here, under the
+     disclosure, so consent is given in one place. */
+  (() => {
+    const v = new URLSearchParams(location.search).get('v');
+    if (!v) return;
+    const t = v.trim();
+    if (t.includes('@')) {
+      email.value = t;
+      phone.focus();
+    } else {
+      const digits = t.replace(/[^\d]/g, '');
+      if (digits) phone.value = digits;
+      email.focus();
+    }
+    /* drop the query so a refresh or a shared link is clean */
+    history.replaceState(null, '', location.pathname);
+  })();
+
   function submit() {
     const e = email.value.trim();
     const raw = phone.value.trim();

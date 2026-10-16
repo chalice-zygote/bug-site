@@ -80,9 +80,8 @@ body {
 /* the subscribe field became a link — the form and its disclosure
    live on /subscribe, so the legal text sits where collection
    happens rather than under every page of the site */
-/* the same object as the search button, sitting where its row's
-   input used to — so the row reads as a button alone, right aligned */
-.row.sub-row { justify-content: flex-end; }
+/* the same object as the search button, with a collecting field
+   beside it that matches the search row exactly */
 #subscribe-link {
   width: 228.36px; height: 59.52px;
   flex: 0 0 228.36px;
@@ -171,18 +170,20 @@ body.armed #site-foot {
      collapses to nothing and the icon simply vanishes */
   width: 100%;
   height: 100%;
-  background-image: linear-gradient(112deg,
+  /* 180deg — the pass runs straight down the glyph rather than
+     across it on the diagonal */
+  background-image: linear-gradient(180deg,
     var(--blue) 0%, var(--blue) 34%,
     #6b66ff 46%, #ffffff 50%, #6b66ff 54%,
     var(--blue) 66%, var(--blue) 100%);
-  background-size: 320% 100%;
-  animation: shim 4.6s linear infinite;
+  background-size: 100% 320%;
+  animation: shim 1.9s linear infinite;
   -webkit-mask: var(--icon) center / contain no-repeat;
           mask: var(--icon) center / contain no-repeat;
 }
 @keyframes shim {
-  0%   { background-position: 130% 50%; }
-  100% { background-position: -30% 50%; }
+  0%   { background-position: 50% 130%; }
+  100% { background-position: 50% -30%; }
 }
 
 /* struck-out text on a held record — shared by the stream bar and
@@ -358,7 +359,14 @@ body.armed #site-foot {
   align-items: center;
   justify-content: flex-start;
 }
-.row button:hover { color: var(--white); }
+/* matches #subscribe-link exactly — one hover vocabulary for both
+   objects in the stack */
+.row button { transition: background 0.14s ease, color 0.14s ease; }
+.row button:hover { background: var(--orange); color: var(--white); }
+
+/* the hint is far longer than the search row's "..." — set it down
+   so it fits the field without shrinking what gets typed in */
+#sub-input::placeholder { font-size: 33px; letter-spacing: -0.06em; }
 
 #search-dots {
   position: absolute; inset: 0;
@@ -634,6 +642,7 @@ body.menu-open #page { transform: translateX(var(--drawer-w)); }
   .row button,
   #subscribe-link { width: 148px; flex: 0 0 148px; height: 40px; font-size: 42px; padding: 0 0 0 4px; }
   #search-dots { font-size: 34px; padding: 0 4px; }
+  #sub-input::placeholder { font-size: 21px; }
   #stream-row { height: 40px; padding: 0 6px; }
   #stream-title { font-size: 25px; }
   #stream-mute { width: 27px; height: 27px; }

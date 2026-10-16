@@ -107,6 +107,11 @@ window.bugSrcset = function (p) {
     <div id="stack-wrap">
       <div id="stack">
         <div class="row sub-row">
+          <div class="input-wrap">
+            <input type="text" id="sub-input" autocomplete="off" spellcheck="false"
+                   placeholder="email address or cell #"
+                   aria-label="Email address or mobile number">
+          </div>
           <a id="subscribe-link" href="subscribe">subscribe</a>
         </div>
         <div class="row">
@@ -444,6 +449,26 @@ window.bugSrcset = function (p) {
   document.getElementById('search-btn').addEventListener('click', runSearch);
   searchInput.addEventListener('keydown', e => {
     if (e.key === 'Enter') { e.preventDefault(); runSearch(); }
+  });
+
+  /* ── SUBSCRIBE HANDOFF ──────────────────────────────────
+     The field here only collects — it never submits. Whatever
+     is typed rides along to /subscribe, which sorts it into the
+     email or the phone input and leaves the person to finish on
+     the page that carries the disclosure. Consent is given where
+     the legal text is, not in a header field. */
+  const subInput = document.getElementById('sub-input');
+  const subLink  = document.getElementById('subscribe-link');
+
+  function goSubscribe(e) {
+    const v = subInput.value.trim();
+    if (e) e.preventDefault();
+    window.location.href = v ? 'subscribe?v=' + encodeURIComponent(v) : 'subscribe';
+  }
+
+  subLink.addEventListener('click', goSubscribe);
+  subInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); goSubscribe(); }
   });
 
   /* arriving at results, put the term back in the field */

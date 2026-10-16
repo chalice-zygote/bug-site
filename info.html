@@ -255,8 +255,9 @@ main {
 
   if (!GATE_ON) return;
 
-  /* the question arrives after the image has had a moment to land */
-  setTimeout(() => ask.classList.add('in'), 1800);
+  /* the question arrives just after the image lands — long enough to
+     read as a beat, short enough not to feel like a wait */
+  setTimeout(() => ask.classList.add('in'), 450);
 
   document.getElementById('no').addEventListener('click', () => {
     window.location.href = 'index';
