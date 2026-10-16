@@ -158,13 +158,24 @@ main {
   margin-top: 2px;
   font-weight: 700; font-size: 25px; line-height: var(--lh);
   letter-spacing: -0.05em;
+  transition: color 0.14s ease;
 }
+/* The title is a link out to YouTube, so it keeps the surrounding
+   colour rather than a browser blue, and underlines only on its own
+   hover. The card hover still tints it — clicking the frame plays
+   here, clicking the words leaves for YouTube. */
+.ttl a { color: inherit; text-decoration: none; }
+.ttl a:hover { text-decoration: underline; text-underline-offset: 2px; }
+.item:hover .ttl { color: var(--orange); }
 .meta {
   margin-top: 3px;
   font-weight: 400; font-size: 17px; line-height: var(--lh);
   letter-spacing: -0.04em; opacity: 0.66;
 }
-.meta a { color: inherit; }
+.meta a { color: inherit; transition: color 0.14s ease; }
+/* opacity is on .meta, so the link lifts to full strength as well as
+   turning — otherwise the orange arrives at 66% and reads muddy */
+.meta a:hover { color: var(--orange); opacity: 1; }
 
 @media (max-width: 900px) {
   main { padding: 14px 16px 110px; }
@@ -234,7 +245,8 @@ main {
         <div class="play"><span></span></div>
       </div>
       <div class="cat">${c.catDisp}</div>
-      <div class="ttl">${c.artist} - ${c.title}</div>
+      <div class="ttl"><a href="https://www.youtube.com/watch?v=${c.yt}"
+           target="_blank" rel="noopener">${c.artist} - ${c.title}</a></div>
       <div class="meta">${c.dur} &middot; ${c.date} &middot;
         <a href="https://www.youtube.com/watch?v=${c.yt}" target="_blank" rel="noopener">YOUTUBE</a>
       </div>

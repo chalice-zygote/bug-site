@@ -171,10 +171,13 @@ body.armed #site-foot {
   width: 100%;
   height: 100%;
   /* 90deg — the pass runs straight across the glyph, left to right,
-     rather than on the diagonal it started as */
+     rather than on the diagonal it started as. The highlight is a
+     blue-white rather than a flat white, so the pass reads as the
+     blue lifting rather than a grey wash crossing it. */
   background-image: linear-gradient(90deg,
     var(--blue) 0%, var(--blue) 34%,
-    #6b66ff 46%, #ffffff 50%, #6b66ff 54%,
+    #8b87ff 44%, #d8d6ff 48%, #ffffff 50%,
+    #d8d6ff 52%, #8b87ff 56%,
     var(--blue) 66%, var(--blue) 100%);
   background-size: 320% 100%;
   animation: shim 1.9s linear infinite;
@@ -412,7 +415,9 @@ body.armed #site-foot {
   font-weight: 700;
   font-size: 40px;
   letter-spacing: -0.08em;
-  color: var(--white);
+  /* the same light grey the subscribe button and the chyron carry,
+     rather than a white that sat brighter than either */
+  color: var(--nav-gray);
   white-space: nowrap;
   will-change: transform;
 }
@@ -428,6 +433,16 @@ body.armed #site-foot {
   background: none; border: 0; padding: 0;
   cursor: pointer;
 }
+/* The on/off artwork is pure white and comes in as an <img>, so it
+   can't take a colour from CSS — but it can take a filter, and
+   0.686 lands white on #AFAFAF exactly (175/255), the same grey as
+   the title beside it. */
+#stream-mute img {
+  filter: brightness(0.686);
+  transition: filter 0.14s ease;
+}
+/* the artwork is already white, so hover just lifts the filter */
+#stream-mute:hover img { filter: none; }
 #stream-mute img { width: 100%; height: 100%; display: block; }
 
 /* the address field opens only when a number has been entered */

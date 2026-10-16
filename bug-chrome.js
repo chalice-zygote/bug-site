@@ -139,8 +139,8 @@ window.bugSrcset = function (p) {
   const foot = document.createElement('footer');
   foot.id = 'site-foot';
   foot.innerHTML = `
-    <div class="name">PRODUCED BY THE BEAUTIFUL UNITY GYMNASIUM</div>
-    <div>Creative entity &middot; Portland, Oregon, United States</div>
+    <div class="name">ARTWORKS PRODUCED BY THE BEAUTIFUL UNITY GYMNASIUM</div>
+    <div>Creative Entity &middot; Portland, Oregon, United States</div>
     <div><a href="mailto:b.u.gymnasium@gmail.com">b.u.gymnasium@gmail.com</a></div>
     <div class="links">
       <a href="register">Catalog</a>

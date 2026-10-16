@@ -129,7 +129,11 @@ main {
   transform: translateY(-50%) translateY(calc((var(--cap-fix) + var(--cap-nudge)) * -1));
   background: var(--blue);
   z-index: -1;
+  transition: background 0.14s ease;
 }
+/* a.release rather than .release — a held record renders as a <div>
+   and shouldn't answer to the hover */
+a.release:hover .title-block::before { background: var(--orange); }
 
 .meta {
   margin-top: 9px;

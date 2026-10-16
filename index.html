@@ -15,6 +15,12 @@
    The header lives in bug.css / bug-chrome.js.
    ═══════════════════════════════════════════════════════════ */
 :root {
+  /* The blue core. These two are the phone figures and the phone is
+     locked to them — the desktop rule below grows BOTH by a little,
+     so it opens up without changing the tall narrow proportion. */
+  --core-w: 46%;
+  --core-h: 30%;
+
   --ticker-y: 1600px;
 
   --flag-offset: 0px;
@@ -29,7 +35,72 @@
   --lockup-inset: 46px;
 }
 
-html, body { background: var(--white); }
+html { background: var(--white); }
+
+/* ── GROUND ───────────────────────────────────────────────
+   One ground for the whole document, carried on <body> rather than
+   on the stage — so the stage and the footer sit on the same
+   gradient instead of the footer laying its own plate over it.
+   A small blue core with a long falloff to white at every edge.
+   Knobs: 46%/30% is how far the blue reaches across and down, 8%
+   is where the falloff starts, 50% 46% is the centre. */
+/* No background on <body> itself. A negative-z-index child paints
+   BELOW its parent's background box, so a white body background sat
+   on top of the gradient layer and hid it. The white now comes from
+   <html>, which is further back still. */
+body { position: relative; background: none; }
+/* The core rides its own layer so it can breathe — scaling the layer
+   grows and shrinks the blue without touching anything else. The
+   outer stop is white, so the layer can overrun the page edges at
+   the top of the swing without showing a seam. */
+body::after {
+  content: '';
+  position: absolute; inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  /* The vertical radius stays a plain 30% of the document, exactly as
+     it was. Only the horizontal one was the problem: at 46% of the
+     box it read right on a phone and ballooned on a desktop, turning
+     the column into a lozenge. --core-w caps it below.
+     (min() with a percentage inside does not parse as a gradient
+     radius, and an invalid gradient kills the whole declaration —
+     which is why that version showed no ground at all.) */
+  background: radial-gradient(ellipse var(--core-w) var(--core-h) at 50% 46%,
+    var(--blue) 0%, var(--blue) 8%, var(--white) 100%);
+  animation: core 8s ease-in-out infinite;
+}
+@keyframes core {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.14); }
+}
+/* Desktop goes back to a percentage, so the core widens with the
+   window the way the early versions did — just at 34% rather than
+   the 46% the phone uses, which keeps it short of the lozenge those
+   turned into. Height sits between the two settings tried so far. */
+@media (min-width: 501px) {
+  :root { --core-w: 20%; --core-h: 40%; }
+}
+
+/* the strobe takes the whole ground */
+body.armed::after { opacity: 0; }
+/* A flat CSS gradient bands across a span this wide. Fine grain
+   breaks the steps up — fractalNoise at 0.33 lands features around
+   3px, multiplying so it textures the colour rather than greying it.
+   z-index -1 keeps it above the ground and under everything else. */
+body::before {
+  content: '';
+  position: absolute; inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.11;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.33' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23g)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+}
+/* The footer sits on the ground's outer white, so it keeps the blue
+   type it uses everywhere. Both the plate AND the top rule come off:
+   that 1px border was the seam, not the colour. */
+#site-foot { background: none; border-top: 0; }
 
 /* the home page owns its own background, not the shared paper */
 #scaler { position: relative; width: 100%; overflow: hidden; }
@@ -43,7 +114,10 @@ html, body { background: var(--white); }
   z-index: 1;
   overflow: hidden;
 }
-#bg { position: absolute; inset: 0; background: var(--white); z-index: 0; }
+/* The stage used to paint its own white ground. The gradient now
+   lives on <body> and has to show through, so this is transparent —
+   the element stays because the armed state still fades it. */
+#bg { position: absolute; inset: 0; z-index: 0; background: none; }
 
 #noise {
   position: absolute; inset: 0;
@@ -101,11 +175,11 @@ html, body { background: var(--white); }
   background: linear-gradient(
     108deg,
     transparent 38%,
-    rgba(255,255,255,0.10) 45%,
-    rgba(255,255,255,0.55) 49%,
-    rgba(255,255,255,0.95) 50.5%,
-    rgba(255,255,255,0.55) 52%,
-    rgba(255,255,255,0.10) 56%,
+    rgba(255,190,150,0.14) 45%,
+    rgba(255,214,184,0.60) 49%,
+    rgba(255,248,242,0.98) 50.5%,
+    rgba(255,214,184,0.60) 52%,
+    rgba(255,190,150,0.14) 56%,
     transparent 63%
   );
   transform: translateX(-130%);
@@ -320,6 +394,65 @@ html:has(body.armed) { background: #000; }
 #warn  { width: calc(var(--icon-h) * 144.41 / 127.47); }
 #drive:hover, #warn:hover { transform: scale(1.06); }
 
+/* ── ONE PASS ACROSS THE PAIR ─────────────────────────────
+   Each icon carries its own masked gradient, so left alone the two
+   shimmer in lockstep and read as two separate events. Lagging the
+   right one by a sixth of the cycle turns them into a single light
+   crossing the dock: left first, then right.
+   Two animations ride this element — the delay list is per
+   animation, so only the sweep lags. The swell stays in phase.
+
+   Longhand, not the `animation` shorthand: the shorthand RESETS
+   animation-delay, so a later shorthand rule wiped the stagger set
+   above it. Longhand leaves the delay alone.
+
+   ── SWELL ──
+   A slow breath, both icons on the same clock so the pair moves as
+   one object. It runs on the masked <i>, not on the anchor, so it
+   can't fight the hover scale or the dock's dolly — and the label,
+   which hangs off the anchor, stays put while the glyph breathes.
+   7.5% on the larger icon is about 7px a side against a 46px gap
+   (30px on a phone), so they still never crowd each other. */
+/* No wipe on the dock icons — flat blue, the pass is gone. The
+   shared .shim keeps its gradient for the info page; this only
+   overrides it here. */
+#dock .shim {
+  background-image: none;
+  background-color: var(--blue);
+  animation: none;
+}
+
+/* The swell rides the ANCHOR, not the masked <i>, and uses the
+   independent `scale` property rather than `transform`. Two reasons:
+   `scale` composes with the hover `transform: scale(1.06)` instead of
+   one clobbering the other, and it keeps the animation off the
+   masked element, whose compositing is where the earlier attempt
+   went wrong. */
+#drive, #warn { animation: swell 3.4s ease-in-out infinite; }
+@keyframes swell {
+  0%, 100% { scale: 1; }
+  50%      { scale: 1.075; }
+}
+
+/* ── ARMED ────────────────────────────────────────────────
+   The same stacked white halo the footer takes when the strobe is
+   running. A mask has no text to shadow, so it is drop-shadow here
+   rather than text-shadow — three layers, not nine, because each
+   one is a separate blur pass on an animating element. */
+body.armed #dock .shim {
+  filter: drop-shadow(0 0 6px  rgba(255,255,255,1))
+          drop-shadow(0 0 14px rgba(255,255,255,0.9))
+          drop-shadow(0 0 26px rgba(255,255,255,0.7));
+}
+body.armed .lbl {
+  text-shadow:
+    0 0 6px  rgba(255,255,255,1),
+    0 0 12px rgba(255,255,255,1),
+    0 0 22px rgba(255,255,255,0.85),
+     1px  1px 2px rgba(255,255,255,1),
+    -1px -1px 2px rgba(255,255,255,1);
+}
+
 /* label sits under the icon and only on hover — absolute so it
    never takes layout space and the icons stay level */
 .lbl {
@@ -377,7 +510,10 @@ body.flag-hover { cursor: pointer; }
     --flag-top-target: 0px;
     --ticker-y: 1060px;
     --drive-y: 1260px;
-    --icon-h: 104px;
+    /* stacked rather than side by side on a phone, so each one can
+       be bigger than the row allowed — halfway between the old 104
+       and the 196 that overshot */
+    --icon-h: 150px;
     --lockup-w: 300px;
 
     /* the flag ran edge to edge on a phone — pulled in so it has
@@ -385,9 +521,23 @@ body.flag-hover { cursor: pointer; }
     --flag-w: 1150px;
     --flag-h: 2045px;
   }
-  #dock { gap: 30px; }
+  /* One above the other, centred on their own widths. The gap has to
+     clear the label too — it hangs off the bottom of each anchor at
+     top:100%, so anything tighter than about 45px puts the REGISTER
+     line on top of the icon beneath it. */
+  #dock {
+    flex-direction: column;
+    align-items: center;
+    gap: 58px;
+  }
 
-  .lbl { font-size: 26px; }
+  /* no hover on a phone, so the labels would never appear at all —
+     they sit on permanently instead, which makes them furniture: blue
+     like everything else, and orange only on the press.
+     :active as well as :hover, since a touch never hovers */
+  .lbl { font-size: 26px; opacity: 1; color: var(--blue); }
+  #drive:hover  .lbl, #warn:hover  .lbl,
+  #drive:active .lbl, #warn:active .lbl { color: var(--orange); }
   .lockup-slot { top: 24%; }
   #ticker-track span { font-size: 104px; }
 }
@@ -400,6 +550,10 @@ body.flag-hover { cursor: pointer; }
   #ticker-track { animation: none; }
   #ticker::after { animation: none; opacity: 0; }
   #dock { animation: none; }
+  /* these two need the id to outweigh the rules that set them —
+     a bare .shim or element selector loses and the motion survives */
+  #drive, #warn { animation: none; scale: 1; }
+  body::after { animation: none; }
   .shim { animation: none; }
   .lockup-wrap.lockup-l { animation: none; transform: rotate(-90deg); }
   .lockup-wrap.lockup-r { animation: none; transform: rotate(90deg); }
