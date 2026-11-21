@@ -69,7 +69,11 @@ main {
 /* The disclaimer closes the register. Set a touch smaller and tighter
    than .note, and less transparent — the bold runs have to carry at
    this size, and 0.66 flattened them against the regular weight. */
-.disclaimer { margin-top: 38px; max-width: 64ch; font-weight: 400;
+/* auto margins as well as text-align — the block is capped at 64ch,
+   so centring the lines without centring the box would leave it
+   sitting left of the page with its text ragged inside it */
+.disclaimer { margin: 38px auto 0; max-width: 64ch; text-align: center;
+              font-weight: 400;
               font-size: 15px; line-height: 1.32; letter-spacing: -0.035em;
               opacity: 0.74; }
 .disclaimer p { margin: 0 0 1.05em; }
