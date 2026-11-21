@@ -36,5 +36,10 @@ window.CHANNELS = [
 
   { cat: 'BUG.CHNL.007', catDisp: 'B.U.G. CHNL 007',
     artist: 'URIEL', title: 'WASP NEST',
-    dur: '2:51', date: '06.17.2026', yt: '6iIyoFJ14x4' }
+    dur: '2:51', date: '06.17.2026', yt: '6iIyoFJ14x4' },
+
+  /* first entry credited to the institution rather than an artist */
+  { cat: 'BUG.CHNL.008', catDisp: 'B.U.G. CHNL 008',
+    artist: 'B.U.G.', title: 'ENTER THE GYMNASIUM',
+    dur: '1:46', date: '11.19.2026', yt: 'kkOJblHwFpI' }
 ];

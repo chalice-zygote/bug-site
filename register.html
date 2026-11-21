@@ -66,12 +66,23 @@ main {
 .note { margin-top: 14px; font-weight: 400; font-size: 17px;
         line-height: 1.3; letter-spacing: -0.04em; opacity: 0.66; max-width: 62ch; }
 
+/* The disclaimer closes the register. Set a touch smaller and tighter
+   than .note, and less transparent — the bold runs have to carry at
+   this size, and 0.66 flattened them against the regular weight. */
+.disclaimer { margin-top: 38px; max-width: 64ch; font-weight: 400;
+              font-size: 15px; line-height: 1.32; letter-spacing: -0.035em;
+              opacity: 0.74; }
+.disclaimer p { margin: 0 0 1.05em; }
+.disclaimer p:last-child { margin-bottom: 0; }
+.disclaimer b { font-weight: 700; }
+
 @media (max-width: 900px) {
   main { padding: 14px 16px 110px; }
   .head h1 { font-size: 30px; }
   .div-head h2 { font-size: 22px; }
   .reg-row { grid-template-columns: 1fr; gap: 1px; padding: 9px 0; font-size: 16px; }
   .reg-row .meta, .reg-row .date { white-space: normal; }
+  .disclaimer { font-size: 13px; margin-top: 30px; }
 }
 </style>
 </head>
@@ -166,9 +177,24 @@ main {
     <div class="div-head"><h2>BUG.${d.code}</h2><span class="dom">${d.dom}</span></div>
     ${d.rows.map(row).join('')}
   `).join('') + `
-    <div class="note">All per-division sequence. Numberwangs are non-recyclonable.
-    Multi-part works produce decimals. A recording and its video are simultaneous
-    objects. Deletion is a transfer, creates a residue.</div>`;
+    <div class="disclaimer">
+      <p>THE UNAUTHORIZED DECISION, PRODUCTION, RESEARCH, DEVELOPMENT,
+      INTERPRETATION, REPLICATION, DEPLOYMENT, EXHIBITION, DISTRIBUTION, AND
+      ARCHIVAL OF THESE <b>ARTWORKS</b> IS ASSUMED, AT THE DISCRETION OF THE
+      USER.</p>
+
+      <p>ALL ENTERPRISES, PROGRAMS, EVENTS, ART OBJECTS, PRACTICES, IMPRACTICES,
+      ACCIDENTS, AND MUTATIONS HEREIN ARE WHOLLY CONDUCTED BY THE
+      <b>BEAUTIFUL UNITY GYMNASIUM.</b></p>
+
+      <p>PARTICIPANTS ARE SUBJECT TO RIGOROUS CREATIVE EXERCISE, GOAL PURSUAL,
+      HABIT ANALYSIS, NUMBERWANG, QUALITY DERISION, DE-IRRESPONSIBILITY,
+      FORWARD-AND-BACKWARD MOTIVATIONAL MOMENTUM, AND THE INHERITANCE OF
+      <b>GENEROUS SOUND AND GRAPHIC SYSTEMS.</b></p>
+
+      <p>ALL RIGHTS ARE RETAINED AND EXERCISED BY THE <b>B.U.G.</b><br>
+      (02.21.07)</p>
+    </div>`;
 })();
 </script>
 
