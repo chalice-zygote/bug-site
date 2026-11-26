@@ -32,21 +32,37 @@ window.PROGRAMS = [
     venue:   'HOLOCENE, PORTLAND OR',
     date:    '01.27.2027',
     sort:    '2027-01-27',
+    /* Announcement copy verbatim. The flyer's +++ rules are set as
+       blank-string gaps, which is how every other entry divides its
+       bill, and the date and venue are left to their own fields
+       rather than repeated here. */
     bill: [
-      'B.U.G. &times; VIRTUA PRESENT',
+      'BEAUTIFUL UNITY GYMNASIUM AND VIRTUA PRESENT',
       'A FEAST OF FOOLS AND NPCS',
       '',
-      'SIX AUDIO-VISUAL ILLUMINATIONS BY',
-      'MORGAN GARRETT, B.U.G., SURGERY SEASON,',
-      'MAESTRA, THE BREAD, WALLH4X',
+      '6X AUDIO-VISUAL ILLUMINATIONS BY',
+      'MORGAN GARRETT',
+      'B.U.G.',
+      'SURGERY SEASON',
+      'MAESTRA',
+      'THE BREAD',
+      'WALLH4X',
       '',
       'EMCEED BY PRINCESS APPLE MOONJEST',
       'COURT MUSIC BY JAMES STAUB',
       'IRL + VIRTUAL INSTALLATIONS BY THE VILLAGE',
       '',
-      'THE TOURNAMENT OF GARB &mdash; A COSTUME CONTEST',
-      'JUDGED BY PRINCESS APPLE MOONJEST AND THEIR GANG OF FOOLS',
-      'ONE CHEST. ONE KEY. BEST DRESSED CLAIMS THE KEY.'
+      'ENTER',
+      'THE TOURNAMENT OF GARB',
+      'A COSTUME CONTEST',
+      'ARE YOU A KNIGHT? ALCHEMIST? PEASANT? JESTER?',
+      'INQUISITOR? SPRITE? MONK?',
+      'COME AS YOUR FINEST MEDIEVAL RENDER.',
+      'JUDGED BY PRINCESS APPLE MOONJEST AND THEIR GANG OF FOOLS!',
+      'ONE CHEST! ONE KEY!',
+      'BEST DRESSED CLAIMS THE KEY!',
+      '',
+      '7PM &middot; 18 COIN IN ADVANCE &middot; 20 COIN AT YE GATE &middot; 21+'
     ],
     link: { label: 'TICKETS', href: 'https://www.etix.com/ticket/p/39628518/render-faire-2027full-dungeon-activationa-feast-of-fools-and-npcs-featmorgan-garrett-21-portland-holocene' },
 
