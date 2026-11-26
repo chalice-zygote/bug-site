@@ -24,6 +24,38 @@
 
 window.PROGRAMS = [
   {
+    cat:     'BUG.PRGM.008',
+    slug:    'render-faire',
+    catDisp: 'B.U.G. PRGM 008',
+    title:   'RENDER FAIRE 2027',
+    sub:     'FULL DUNGEON ACTIVATION',
+    venue:   'HOLOCENE, PORTLAND OR',
+    date:    '01.27.2027',
+    sort:    '2027-01-27',
+    bill: [
+      'B.U.G. &times; VIRTUA PRESENT',
+      'A FEAST OF FOOLS AND NPCS',
+      '',
+      'SIX AUDIO-VISUAL ILLUMINATIONS BY',
+      'MORGAN GARRETT, B.U.G., SURGERY SEASON,',
+      'MAESTRA, THE BREAD, WALLH4X',
+      '',
+      'EMCEED BY PRINCESS APPLE MOONJEST',
+      'COURT MUSIC BY JAMES STAUB',
+      'IRL + VIRTUAL INSTALLATIONS BY THE VILLAGE',
+      '',
+      'THE TOURNAMENT OF GARB &mdash; A COSTUME CONTEST',
+      'JUDGED BY PRINCESS APPLE MOONJEST AND THEIR GANG OF FOOLS',
+      'ONE CHEST. ONE KEY. BEST DRESSED CLAIMS THE KEY.'
+    ],
+    link: { label: 'TICKETS', href: 'https://www.etix.com/ticket/p/39628518/render-faire-2027full-dungeon-activationa-feast-of-fools-and-npcs-featmorgan-garrett-21-portland-holocene' },
+
+    media: [
+      { kind: 'PROM', src: 'assets/program/render-faire/renderfaire-1.png' },
+      { kind: 'PROM', src: 'assets/program/render-faire/renderfaire-2.png' }
+    ]
+  },
+  {
     cat:     'BUG.PRGM.007',
     slug:    'drift-ii',
     catDisp: 'B.U.G. PRGM 007',
